@@ -1,4 +1,5 @@
-
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from requests import session
@@ -367,9 +368,44 @@ def payment_completed_view(request):
             cart_total_amount += int(item['qty']) * float(item['price'])
     return render(request, 'core/payment-completed.html',  {'cart_data':request.session['cart_data_obj'],'totalcartitems':len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
 
+
 @login_required
 def payment_failed_view(request):
     return render(request, 'core/payment-failed.html')
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        # Retrieve password fields from the request
+        current_password = request.POST.get('password')
+        new_password = request.POST.get('npassword')
+        confirm_password = request.POST.get('cpassword')
+
+        # Check if the current password is correct
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Your current password is incorrect.')
+            return redirect('core:dashboard')
+
+        # Check if the new password and confirm password match
+        if new_password != confirm_password:
+            messages.error(request, 'New password and confirm password do not match.')
+            return redirect('core:dashboard')
+
+        # Update the user's password
+        user = request.user
+        user.password = make_password(new_password)
+        user.save()
+
+        # Update the session authentication hash
+        update_session_auth_hash(request, user)
+
+        # Redirect back to the dashboard with a success message
+        messages.success(request, 'Your password was successfully updated!')
+        return redirect('core:dashboard')
+    else:
+        # If the request method is not POST, redirect back to dashboard page
+        return redirect('core:dashboard')
 
 
 @login_required

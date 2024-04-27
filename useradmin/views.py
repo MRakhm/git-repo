@@ -116,7 +116,7 @@ def send_verification_email(email, otp):
 def send_otp_view(request):
     if request.method == "POST":
         email = request.POST.get('email')
-        if User.objects.filter(email=email, is_staff=1).exists():
+        if User.objects.filter(email=email, is_superuser=1).exists():
             # Generate OTP
             otp = generate_otp()
             if send_verification_email(email, otp):

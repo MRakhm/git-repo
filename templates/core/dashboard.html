@@ -167,7 +167,8 @@
                                     <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                                         <div class="row">
                                                 <div>
-                                                    <form class="mb-4" method="POST" > {% csrf_token %}
+                                                    <form class="mb-4" method="POST" >
+                                                        {% csrf_token %}
                                                         <div class="card-hdeader">
                                                             <h5>Add Address</h5>
                                                         </div>
@@ -229,7 +230,8 @@
                                                 <h5>Change Password</h5>
                                             </div>
                                             <div class="card-body">
-                                                <form method="post" name="enq">
+                                                <form method="post" name="enq" action="{% url 'core:change-password' %}">
+                                                    {% csrf_token %}
                                                     <div class="row">
                                                         <div class="form-group col-md-12">
                                                             <label>Current Password <span class="required">*</span></label>
@@ -244,7 +246,7 @@
                                                             <input required="" class="form-control" name="cpassword" type="password" />
                                                         </div>
                                                         <div class="col-md-12">
-                                                            <button type="submit" class="btn btn-fill-out submit font-weight-bold" name="submit" value="Submit">Save Change</button>
+                                                            <button type="submit" class="btn btn-fill-out submit font-weight-bold">Save Change</button>
                                                         </div>
                                                     </div>
                                                 </form>
