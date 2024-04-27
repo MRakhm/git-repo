@@ -1,0 +1,146 @@
+import random
+import string
+
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from userauths.forms import UserRegisterForm, ProfileForm
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
+from django.conf import settings
+from userauths.models import Profile, User, TempUser
+
+
+# User = settings.AUTH_USER_MODEL
+
+def generate_otp(length=6):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+
+
+def send_verification_email(email, otp):
+    subject = 'Email Verification'
+    message = f'Dear user,\n Your One-Time Password (OTP) for account verification is: {otp}\nPlease use this OTP to complete the registration process. Do not share this OTP with anyone for security reasons.'
+    from_email = 'advertise.website0994@gmail.com'  # Update with your email address
+    to_email = email
+    try:
+        send_mail(subject, message, from_email, [to_email])
+        return True
+    except Exception as e:
+        print("Error sending email:", e)
+        return False
+
+
+def send_otp_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        if TempUser.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already exists"})
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already exists"})
+        # Generate OTP
+        otp = generate_otp()
+        if send_verification_email(email, otp):
+            TempUser.objects.create(email=email, otp=otp)
+            # Return success response
+            return JsonResponse({"success": "OTP has been sent successfully"})
+        else:
+            return JsonResponse({"error": "OTP not sent, Try again."})
+    else:
+        return JsonResponse({"error": "Invalid request method"})
+
+
+def verify_otp_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        otp = request.POST.get('otp')
+        # Retrieve TempUser object based on email
+        try:
+            temp_user = TempUser.objects.get(email=email)
+        except TempUser.DoesNotExist:
+            return JsonResponse({"error": "No such user found"})
+        # Check if OTP matches
+        if temp_user.otp == otp:
+            # OTP verification successful, delete TempUser and return success response
+            temp_user.delete()
+            return JsonResponse({"success": "OTP has been verified successfully"})
+        else:
+            return JsonResponse({"error": "Invalid OTP"})
+    else:
+        return JsonResponse({"error": "Invalid request method"})
+
+
+def register_view(request):
+    if request.method == "POST":
+        form = UserRegisterForm(request.POST or None)
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.set_password(form.cleaned_data['password1'])  # Set password
+            new_user.save()
+            # Authenticate and login the user
+            new_user = authenticate(username=form.cleaned_data['email'], password=form.cleaned_data['password1'])
+            login(request, new_user)
+            messages.success(request, f"Hey {new_user.username}, Your account was created successfully.")
+            return redirect("core:index")
+    else:
+        form = UserRegisterForm()
+
+    context = {'form': form}
+    return render(request, "userauths/sign-up.html", context)
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        messages.warning(request, f"Hey you are already Logged In.")
+        return redirect("core:index")
+    
+    if request.method == "POST":
+        email = request.POST.get("email") # peanuts@gmail.com
+        password = request.POST.get("password") # getmepeanuts
+
+        try:
+            user = User.objects.get(email=email)
+            user = authenticate(request, email=email, password=password)
+
+            if user is not None:
+                login(request, user)
+                messages.success(request, "You are logged in.")
+                return redirect("core:index")
+            else:
+                messages.warning(request, "User Does Not Exist, create an account.")
+    
+        except:
+            messages.warning(request, f"User with {email} does not exist")
+        
+
+    
+    return render(request, "userauths/sign-in.html")
+
+        
+
+def logout_view(request):
+
+    logout(request)
+    messages.success(request, "You logged out.")
+    return redirect("userauths:sign-in")
+
+
+def profile_update(request):
+    profile = Profile.objects.get(user=request.user)
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            new_form = form.save(commit=False)
+            new_form.user = request.user
+            new_form.save()
+            messages.success(request, "Profile Updated Successfully.")
+            return redirect("core:dashboard")
+    else:
+        form = ProfileForm(instance=profile)
+
+    context = {
+        "form": form,
+        "profile": profile,
+    }
+
+    return render(request, "userauths/profile-edit.html", context)

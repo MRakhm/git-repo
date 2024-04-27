@@ -1,0 +1,53 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+    <main class="main pages">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                    <span></span> Pages <span></span> Privacy Policy
+                </div>
+            </div>
+        </div>
+        <div class="page-content pt-50">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-10 col-lg-12 m-auto">
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <div class="single-page pr-30 mb-lg-0 mb-sm-5">
+                                    <div class="single-content mb-50">
+                                        <h4>Welcome to AliCart’s Privacy Policy</h4>
+                                        <h5>Hi there, we’re AliCart team and happy to have you today! </h5>
+                                        <ol start="1">
+                                            <li>We are committed to protecting your privacy. All personal information collected on this site is securely stored and only used for the purpose of verifying your identity in our database. We assure you that your information is not utilized for any other purposes</li>
+                                            <li>Should you have any inquiries during your purchasing process, our customer service team is readily available to assist you. We offer multiple channels for support including phone calls, Facebook, WhatsApp, and Instagram. For immediate assistance, please click on the respective icons to contact us directly.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 primary-sidebar sticky-sidebar">
+                                <div class="widget-area">
+                                    <div class="sidebar-widget widget-category-2 mb-30">
+                                        <h5 class="section-title style-1 mb-30">Category</h5>
+                                        <ul>
+                            
+                                            {% for c in categories %}
+                                            <li>
+                                                <a href="{% url 'core:category-product-list' c.cid %}"> <img src="{{ c.image.url }}" alt="" style="width: 30px; height: 30px; object-fit: cover; border-radius: 10px;" />{{c.title}}</a><span class="count">{{c.product_count}}</span>
+                                            </li>
+                                            {% endfor %}
+                                            
+                                        </ul>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock content %}
