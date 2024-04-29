@@ -15,7 +15,6 @@ class UserRegisterForm(UserCreationForm):
         fields = ['username', 'email']
 
 
-
 class ProfileForm(forms.ModelForm):
     full_name = forms.CharField(widget=forms.TextInput(attrs={"placeholder":"Full Name"}))
     bio = forms.CharField(widget=forms.TextInput(attrs={"placeholder":"Bio"}))

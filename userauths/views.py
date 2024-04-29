@@ -1,6 +1,7 @@
 import random
 import string
 
+from django.contrib.auth.forms import PasswordResetForm
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -20,7 +21,7 @@ def generate_otp(length=6):
 
 def send_verification_email(email, otp):
     subject = 'Email Verification'
-    message = f'Dear user,\n Your One-Time Password (OTP) for account verification is: {otp}\nPlease use this OTP to complete the registration process. Do not share this OTP with anyone for security reasons.'
+    message = f'Dear user,\n Your One-Time Password (OTP) for account verification is: {otp}\nPlease use this OTP for account verification process. Do not share this OTP with anyone for security reasons.'
     from_email = 'advertise.website0994@gmail.com'  # Update with your email address
     to_email = email
     try:
@@ -84,7 +85,6 @@ def register_view(request):
             return redirect("core:index")
     else:
         form = UserRegisterForm()
-
     context = {'form': form}
     return render(request, "userauths/sign-up.html", context)
 
@@ -111,15 +111,11 @@ def login_view(request):
     
         except:
             messages.warning(request, f"User with {email} does not exist")
-        
-
     
     return render(request, "userauths/sign-in.html")
 
-        
 
 def logout_view(request):
-
     logout(request)
     messages.success(request, "You logged out.")
     return redirect("userauths:sign-in")
@@ -144,3 +140,60 @@ def profile_update(request):
     }
 
     return render(request, "userauths/profile-edit.html", context)
+
+
+def forgot_password(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        otp = request.POST.get('otp')
+
+        # Store the form data in a dictionary to pass it back in case of errors
+        form_data = {'email': email, 'password1': password1, 'password2': password2, 'otp': otp}
+
+        if email and password1 and password1 == password2:
+            try:
+                # Get the user object associated with the provided email
+                user = User.objects.get(email=email)
+
+                # Set the new password
+                user.set_password(password1)
+                user.save()
+
+                # Authenticate and login the user with the new password
+                user = authenticate(username=email, password=password1)
+                login(request, user)
+
+                # Redirect to the index page
+                messages.success(request, f"Hey {user.username}, Your password is changed successfully.")
+                return redirect("core:index")
+            except User.DoesNotExist:
+                # Handle case where user with provided email doesn't exist
+                messages.error(request, "User with this email doesn't exist.")
+        else:
+            # Handle case where email or passwords are missing or passwords don't match
+            messages.error(request, "Invalid email or passwords don't match.")
+
+        # Pass form_data along with the error message in the context
+        context = {'form_data': form_data}
+        return render(request, "userauths/forgot-password.html", context)
+    else:
+        return render(request, "userauths/forgot-password.html")
+
+
+def send_forgot_otp_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        if not User.objects.filter(email=email).exists():
+            return JsonResponse({"error": "There is no account associated with this email address."})
+        # Generate OTP
+        otp = generate_otp()
+        if send_verification_email(email, otp):
+            TempUser.objects.create(email=email, otp=otp)
+            # Return success response
+            return JsonResponse({"success": "OTP has been sent successfully"})
+        else:
+            return JsonResponse({"error": "OTP not sent, Try again."})
+    else:
+        return JsonResponse({"error": "Invalid request method"})

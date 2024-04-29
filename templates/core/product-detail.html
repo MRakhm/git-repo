@@ -50,7 +50,9 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12 col-xs-12">
                                         <div class="detail-info pr-30 pl-30">
-                                            <span class="stock-status out-stock"> -{{p.get_precentage|floatformat:0}}% </span>
+                                            {% if p.old_price %}
+                                                <span class="stock-status out-stock"> -{{p.get_precentage|floatformat:0}}% </span>
+                                            {% endif %}
                                             <h2 class="title-detail">{{p.title}}</h2>
                                             <div class="product-detail-rating">
                                                 <div class="product-rate-cover text-end">
@@ -63,10 +65,12 @@
                                             <div class="clearfix product-price-cover">
                                                 <div class="product-price primary-color float-left">
                                                     <span class="current-price text-brand">TJS</span><span class="current-price text-brand current-price current-product-price-{{ p.id }}" id="current-product-price">{{p.price}}</span>
+                                                    {% if p.old_price %}
                                                     <span>
                                                         <span class="save-price font-md color3 ml-15">-{{p.get_precentage|floatformat:0}}% Off</span>
-                                                    <span class="old-price font-md ml-15">TJS{{p.old_price}}</span>
+                                                        <span class="old-price font-md ml-15">TJS{{p.old_price}}</span>
                                                     </span>
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                             <div class="short-desc mb-30">

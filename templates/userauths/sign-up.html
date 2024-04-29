@@ -138,6 +138,10 @@
     $(document).ready(function(){
         $("#sendOTPBtn").click(function(){
             var email = $("input[name='email']").val();
+            if(email.trim() === "") {
+                // Show error message or handle empty email scenario
+                return;
+            }
             $.ajax({
                 url: "{% url 'userauths:send_otp' %}",
                 type: "POST",

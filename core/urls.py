@@ -5,7 +5,7 @@ from core.views import generate_report, add_to_cart, add_to_wishlist, ajax_add_r
     filter_product, index, make_address_default, order_detail, payment_completed_view, payment_failed_view, \
     product_detail_view, product_list_view, remove_wishlist, search_view, sign_in, tag_list, update_cart, \
     vendor_detail_view, vendor_list_view, wishlist_view, contact, about_us, privacy_policy, terms_of_service, sign_in, \
-    sign_up, change_password
+    sign_up, change_password, search_characters
 
 app_name = "core"
 
@@ -32,6 +32,7 @@ urlpatterns = [
 
     # Search
     path("search/", search_view, name="search"),
+    path('search_characters/', search_characters, name='search_characters'),
 
     # Filter product URL
     path("filter-products/", filter_product, name="filter-product"),
@@ -66,7 +67,7 @@ urlpatterns = [
     # Order Detail URL
     path("dashboard/order/<int:id>", order_detail, name="order-detail"),
 
-    # Making address defauly
+    # Making address default
     path("make-default-address/", make_address_default, name="make-default-address"),
 
     # wishlist page

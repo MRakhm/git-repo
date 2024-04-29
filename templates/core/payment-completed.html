@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html class="no-js" lang="en">
 
 <head>
@@ -41,7 +40,7 @@
                                 </div>
                             </div>
                             <div class="invoice-banner">
-                                <img src="{% static 'assets/imgs/invoice/banner.png' %}" alt="">
+<!--                                <img src="{% static 'assets/imgs/invoice/banner.png' %}" alt="">-->
                             </div>
                             <div class="invoice-center">
                                 <div class="table-responsive">
@@ -89,7 +88,7 @@
                                     <div class="col-md-6">
                                         <h6 class="mb-15">Invoice Information</h6>
                                         <p class="font-sm">
-                                            <strong>Invoice To:</strong> {{request.user|title}}<br />
+                                            <strong>Invoice To:</strong> {{ name }}<br />
                                         </p>
                                     </div>
                                     <div class="col-md-6 text-end">
@@ -99,13 +98,13 @@
                                 </div>
                                 <div class="row text-center">
                                     <div class="hr mt-30 mb-30"></div>
-                                    <p class="mb-0 text-muted"><strong>Hey {{ request.user|title }}, </strong>Thanks for shopping with  AliCart</p>
+                                    <p class="mb-0 text-muted"><strong>Hey {{ name }}, </strong>Thanks for shopping with  AliCart</p>
                                 </div>
                             </div>
                         </div>
                         <div class="invoice-btn-section clearfix d-print-none">
-                            <a href="javascript:window.print()" class="btn btn-lg btn-custom btn-print hover-up"> <img src="{% static 'assets/imgs/theme/icons/icon-print.svg' %}" alt="" /> Print </a>
-                            <a id="invoice_download_btn" class="btn btn-lg btn-custom btn-download hover-up"> <img src="{% static 'assets/imgs/theme/icons/icon-download.svg' %}" alt="" /> Download </a>
+                            <a href="javascript:window.print()" class="btn btn-lg btn-custom btn-print hover-up"> Print </a>
+                            <a id="invoice_download_btn" class="btn btn-lg btn-custom btn-download hover-up"> Download </a>
                         </div>
                     </div>
                 </div>
@@ -119,5 +118,4 @@
     <script src="{% static 'assets/js/invoice/jspdf.min.js' %}"></script>
     <script src="{% static 'assets/js/invoice/invoice.js' %}"></script>
 </body>
-
 </html>

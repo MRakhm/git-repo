@@ -13,7 +13,6 @@
                                 <span></span> Shop <span></span> {{category.title}}
                             </div>
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -75,7 +74,6 @@
                                         <a href="{% url 'core:product-detail' p.pid %}">
                                             <img class="default-img" src="{{ p.image.url }}" alt="" style="height: 280px; width: 280px; object-fit: cover;"   />
                                             <img class="hover-img" src="{{ p.image.url }}" alt=""  style="height: 280px; width: 280px; object-fit: cover;"  />
-
                                         </a>
                                     </div>
                                     <div class="product-action-1">
@@ -83,9 +81,11 @@
                                         <!-- <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                         <a href="{% url 'core:product-detail' p.pid %}" class="action-btn"><i class="fi-rs-eye"></i></a>
                                     </div>
+                                    {% if p.old_price %}
                                     <div class="product-badges product-badges-position product-badges-mrg">
                                         <span class="hot">-{{p.get_precentage|floatformat:0}}%</span>
                                     </div>
+                                    {% endif %}
                                 </div>
                                 <div class="product-content-wrap">
                                     <div class="product-category">
@@ -95,15 +95,16 @@
                                     <div class="product-rate-cover">
                                         <i class="fas fa-star text-warning"></i>
                                         <span class="font-small ml-5 text-muted"> ({{ p.reviews.all.count }})</span>
-
                                     </div>
                                     <div>
                                         <span class="font-small text-muted">By <a href="{% url 'core:vendor-detail' p.vendor.vid %}">{{p.vendor.title}}</a></span>
                                     </div>
                                     <div class="product-card-bottom">
                                         <div class="product-price">
-                                            <span>TJS</span> <span class="current-product-price-{{ p.id }}">{{p.price}}</span>
-                                            <span class="old-price">TJS{{p.old_price}}</span>
+                                            <span>TS</span> <span class="current-product-price-{{ p.id }}">{{p.price}}</span>
+                                            {% if p.old_price %}
+                                                <span class="old-price">TJS{{p.old_price}}</span>
+                                            {% endif %}
                                         </div>
                                         <div class="add-cart">
                                             <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{ p.id }}">
@@ -145,5 +146,4 @@
             </div>
         </div>
     </main>
-   
 {% endblock content %}

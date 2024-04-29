@@ -1,8 +1,6 @@
 {% extends 'partials/base.html' %}
 {% load static %}
 {% block content %}
-
-
     <main class="main">
         <div class="container mb-30">
             <div class="row flex-row-reverse">
@@ -61,6 +59,7 @@
                                 <div class="row product-grid-4">
                                     
                                     {% for p in products %}
+                                    <h1>Majid</h1>
                                     <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
                                         <div class="product-cart-wrap mb-30">
                                             <div class="product-img-action-wrap">
@@ -3099,263 +3098,126 @@
                     <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0">
                         <h4 class="section-title style-1 mb-30 animated animated">Top Selling</h4>
                         <div class="product-list-small animated animated">
+                            {% for product in top_selling_products %}
                             <article class="row align-items-center hover-up">
                                 <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-1.jpg' %}" alt="" /></a>
+                                    <a href="{% url 'core:product-detail' product.pid %}"><img src="{{ product.image.url }}" alt="{{ product.title }}" /></a>
                                 </figure>
                                 <div class="col-md-8 mb-0">
                                     <h6>
-                                        <a href="shop-product-right.html">AliCartle Original Coffee-Mate Coffee Creamer</a>
+                                        <a href="{% url 'core:product-detail' product.pid %}">{{ product.title }}</a>
                                     </h6>
                                     <div class="product-rate-cover">
                                         <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
+                                            <div class="product-rating" style="width: {{ product.average_rating|default_if_none:0 }}%"></div>
                                         </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
+                                        <span>{{ product.price }}</span>
+                                        <!-- You can add old price if available -->
+                                        {% if product.old_price %}
+                                            <span class="old-price">{{ product.old_price }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-2.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">AliCartle Original Coffee-Mate Coffee Creamer</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-3.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">AliCartle Original Coffee-Mate Coffee Creamer</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-xl-3 col-lg-4 col-md-6 mb-md-0">
                         <h4 class="section-title style-1 mb-30 animated animated">Trending Products</h4>
                         <div class="product-list-small animated animated">
+                            {% for product in trending_products %}
                             <article class="row align-items-center hover-up">
                                 <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-4.jpg' %}" alt="" /></a>
+                                    <a href="{% url 'core:product-detail' product.pid %}"><img src="{{ product.image.url }}" alt="" /></a>
                                 </figure>
                                 <div class="col-md-8 mb-0">
                                     <h6>
-                                        <a href="shop-product-right.html">Organic Cage-Free Grade A Large Brown Eggs</a>
+                                        <a href="{% url 'core:product-detail' product.pid %}">{{ product.title }}</a>
                                     </h6>
                                     <div class="product-rate-cover">
                                         <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
+                                            <div class="product-rating" style="width: {{ product.average_rating|default_if_none:0 }}%"></div>
                                         </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
+                                        <span>{{ product.price }}</span>
+                                        {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-5.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">Seeds of Change Organic Quinoa, Brown, & Red Rice</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-6.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">Naturally Flavored Cinnamon Vanilla Light Roast Coffee</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
+                            {% endfor %}
                         </div>
                     </div>
+
                     <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 d-none d-lg-block">
                         <h4 class="section-title style-1 mb-30 animated animated">Recently added</h4>
                         <div class="product-list-small animated animated">
+                            {% for product in recently_added_products %}
                             <article class="row align-items-center hover-up">
                                 <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-7.jpg' %}" alt="" /></a>
+                                    <a href="{% url 'core:product-detail' product.pid %}">
+                                        <img src="{{ product.image.url }}" alt="{{ product.title }}" />
+                                    </a>
                                 </figure>
                                 <div class="col-md-8 mb-0">
                                     <h6>
-                                        <a href="shop-product-right.html">Pepperidge Farm Farmhouse Hearty White Bread</a>
+                                        <a href="{% url 'core:product-detail' product.pid %}">{{ product.title }}</a>
                                     </h6>
                                     <div class="product-rate-cover">
                                         <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
+                                            <div class="product-rating" style="width: {{ product.average_rating|default_if_none:0 }}%"></div>
                                         </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
+                                        <span>{{ product.price }}</span>
+                                        {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-8.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">Organic Frozen Triple Berry Blend</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-9.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">Oroweat Country Buttermilk Bread</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 d-none d-xl-block">
                         <h4 class="section-title style-1 mb-30 animated animated">Top Rated</h4>
                         <div class="product-list-small animated animated">
+                            {% for product in top_rated_products %}
                             <article class="row align-items-center hover-up">
                                 <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-10.jpg' %}" alt="" /></a>
+                                    <a href="{% url 'core:product-detail' product.pid %}">
+                                        <img src="{{ product.image.url }}" alt="{{ product.title }}" />
+                                    </a>
                                 </figure>
                                 <div class="col-md-8 mb-0">
                                     <h6>
-                                        <a href="shop-product-right.html">Foster Farms Takeout Crispy Classic Buffalo Wings</a>
+                                        <a href="{% url 'core:product-detail' product.pid %}">{{ product.title }}</a>
                                     </h6>
                                     <div class="product-rate-cover">
                                         <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
+                                            <div class="product-rating" style="width: {{ product.average_rating|default_if_none:0 }}%"></div>
                                         </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
+                                        <span>{{ product.price }}</span>
+                                        {% if product.old_price %}
+                                        <span class="old-price">{{ product.old_price }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-11.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">Angie’s Boomchickapop Sweet & Salty Kettle Corn</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
-                            <article class="row align-items-center hover-up">
-                                <figure class="col-md-4 mb-0">
-                                    <a href="shop-product-right.html"><img src="{% static 'assets/imgs/shop/thumbnail-12.jpg' %}" alt="" /></a>
-                                </figure>
-                                <div class="col-md-8 mb-0">
-                                    <h6>
-                                        <a href="shop-product-right.html">All Natural Italian-Style Chicken Meatballs</a>
-                                    </h6>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                    </div>
-                                    <div class="product-price">
-                                        <span>TJS32.85</span>
-                                        <span class="old-price">TJS33.8</span>
-                                    </div>
-                                </div>
-                            </article>
+                            {% endfor %}
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>

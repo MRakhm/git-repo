@@ -1,3 +1,4 @@
+$(document).ready(function() {
 $(function() {
 
     'use strict';
@@ -29,4 +30,5 @@ $(function() {
             pdf.save("invoice.pdf");
         });
     });
-})
+});
+});

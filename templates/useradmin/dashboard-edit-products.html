@@ -125,7 +125,7 @@
 
                                     <div class="mb-4">
                                         <label class="form-label">Tags</label>
-                                        {{form.tags}}
+                                        <input type="text" name="tags" value="{% for tag in form.tags.value %}{{ tag }}, {% endfor %}" placeholder="Tags" class="form-control" required="" id="id_tags">
                                         <small class="text-muted">Seperate tag using comma</small>
                                         <!-- <input type="text" placeholder="%" class="form-control" id="product_name" /> -->
                                     </div>

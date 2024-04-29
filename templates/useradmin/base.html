@@ -18,8 +18,28 @@
     <link href="{% static 'assets2/css/main.css' %}" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-</head>
+    <style>
+        .dropdown-toggle .d-flex {
+            justify-content: center;
+            align-items: center;
+        }
 
+        .dropdown-toggle .fw-bold {
+            font-weight: bold;
+        }
+        .dropdown-toggle {
+            position: relative; /* Add relative positioning to the parent */
+        }
+
+        .dropdown-toggle:after {
+            position: absolute;
+            top: 50%;
+            color: #adb5bd;
+            right: -5px; /* Adjust the positioning to move the arrow to the right of the username */
+            transform: translateY(-50%); /* Center the arrow vertically */
+        }
+    </style>
+</head>
 <body>
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
@@ -33,26 +53,23 @@
         </div>
         <nav>
             <ul class="menu-aside">
-                <li class="menu-item active">
+                <li class="menu-item {% if request.resolver_match.view_name == 'useradmin:dashboard' %}active{% endif %}">
                     <a class="menu-link" href="/useradmin">
-                            <i class="icon material-icons md-home"></i>
-                            <span class="text">Dashboard</span>
-                        </a>
+                        <i class="icon material-icons md-home"></i>
+                        <span class="text">Dashboard</span>
+                    </a>
                 </li>
-                <li class="menu-item has-submenu">
+                <li class="menu-item has-submenu {% if request.resolver_match.view_name == 'useradmin:dashboard-products' %}active{% endif %}">
                     <a class="menu-link" href="{% url 'useradmin:dashboard-products' %}">
                         <i class="icon material-icons md-shopping_bag"></i>
-
-                            <span class="text">Products</span>
-                        </a>
-                    
+                        <span class="text">Products</span>
+                    </a>
                 </li>
-                <li class="menu-item has-submenu">
+                <li class="menu-item has-submenu {% if request.resolver_match.view_name == 'useradmin:dashboard-add-products' %}active{% endif %}">
                     <a class="menu-link" href="{% url 'useradmin:dashboard-add-products' %}">
-                            <i class="icon material-icons md-add_box"></i>
-                            <span class="text">Add product</span>
-                        </a>
-                    
+                        <i class="icon material-icons md-add_box"></i>
+                        <span class="text">Add product</span>
+                    </a>
                 </li>
             </ul>
             <br />
@@ -99,12 +116,24 @@
                         </div>
                     </li>
                     <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="{% static 'assets2/imgs/people/avatar-5.png' %}" alt="User" /></a>
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">
+                            {% if request.user.profile and request.user.profile.full_name %}
+                                <div class="d-flex">
+                                    <img class="img-xs rounded-circle me-2" src="{{ request.user.profile.image.url }}" alt="User" />
+                                    <span class="fw-bold">{{ request.user.profile.full_name }}</span>
+                                </div>
+                            {% else %}
+                                <div class="d-flex align-items-center">
+                                    <img class="img-xs rounded-circle me-2" src="{% static 'assets2/imgs/people/avatar-5.png' %}" alt="User" />
+                                    <span class="fw-bold">{{ request.user.username }}</span>
+                                </div>
+                            {% endif %}
+                        </a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                             <a class="dropdown-item" href="{% url 'core:index' %}"><i class="material-icons md-receipt"></i>Go to the shop</a>
                             <a class="dropdown-item" href="{% url 'core:contact' %}"><i class="material-icons md-help_outline"></i>Contact Us</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="{% url 'userauths:sign-up' %}"><i class="material-icons md-exit_to_app"></i>Logout</a>
+                            <a class="dropdown-item text-danger" href="{% url 'userauths:sign-out' %}"><i class="material-icons md-exit_to_app"></i>Logout</a>
                         </div>
                     </li>
                 </ul>

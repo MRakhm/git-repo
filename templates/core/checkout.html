@@ -24,46 +24,67 @@
                 <div class="col-lg-7">
                     <div class="row">
                         <h4 class="mb-30">Billing Details</h4>
-                        <form method="post">
+                        <div id="error_message" class="alert alert-danger col-lg-7" style="margin-left:2%; display:none;"></div>
+                        <form method="POST" id="checkout_form" action="{% url 'core:payment-completed' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
                             <div class="row">
                                 <div class="form-group col-lg-6">
-                                    <input type="text" required="" name="fname" value="{{ request.user.username|title }}" placeholder="First name *">
+                                    {% if request.user.username %}
+                                        <input type="text" required name="fname" value="{{ request.user.username|title }}" placeholder="First name *">
+                                    {% else %}
+                                        <input type="text" required name="fname" placeholder="First name *">
+                                    {% endif %}
                                 </div>
                                 <div class="form-group col-lg-6">
-                                    <input type="text" required="" name="lname" placeholder="mobile *" value="{{ active_address.mobile }}">
+                                    <input type="text" required name="lname" placeholder="mobile *" value="{{ active_address.mobile }}">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-lg-6">
-                                    <input type="text" name="billing_address" value="{{ active_address.address }}" required="" placeholder="Address *">
+                                    <input type="text" name="billing_address" value="{{ active_address.address }}" required placeholder="Address *">
                                 </div>
-                                
                             </div>
-                         
+                            <div style="display: flex;">
+                                <div class="payment ml-30" style="padding-top: 50px;">
+                                    <h4 class="mb-30">Payment Information</h4>
+                                    <div class="payment_option">
+                                        <div class="custome-radio">
+                                            <input class="form-check-input" required type="radio" name="payment_option" id="exampleRadios3" value="cart_and_check">
+                                            <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">Pay with cart and upload cheque</label>
+                                        </div>
+                                        <!-- Image and comments fields -->
+                                        <div id="checkPayment" class="collapse ml-30">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="cheque_picture">Upload Cheque Picture *</label>
+                                                    <input type="file" name="cheque_picture" id="cheque_picture" required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="comments">Comments *</label>
+                                                    <textarea name="comments" id="comments" cols="30" rows="3" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="custome-radio">
+                                            <input class="form-check-input" required type="radio" name="payment_option" id="exampleRadios4" checked value="cash_on_delivery">
+                                            <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">Cash on delivery</label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" style="font-size:unset" class="btn btn-fill-out btn-block mt-30" id="finish_order_btn">Finish your order<i class="fi-rs-sign-out ml-15"></i></button>
+<!--                                    <a href="{% url 'core:payment-completed' %}" class="btn btn-fill-out btn-block mt-30" id="finish_order_btn">Finish your order<i class="fi-rs-sign-out ml-15"></i></a>-->
+                                </div>
+                                <div style="margin-left: 200px; padding-top: 50px;">
+                                    <img src="{% static 'assets/imgs/page/QR.png' %}" alt="Description of image" style="width: 100%; max-width: 300px;">
+                                </div>
+                            </div>
                         </form>
                     </div>
                     
-                    <div style="display: flex;">
-                        <div class="payment ml-30" style="padding-top: 50px;">
-                            <h4 class="mb-30">Payment Information</h4>
-                            <div class="payment_option">
-                                <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" checked="">
-                                    <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">Pay with cart and upload the check</label>
-                                </div>
-                                <div class="custome-radio">
-                                    <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" checked="">
-                                    <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">Cash on delivery</label>
-                                </div>
-                            </div>
-                            
-                            <a href="{% url 'core:payment-completed' %}" class="btn btn-fill-out btn-block mt-30">Finish your order<i class="fi-rs-sign-out ml-15"></i></a>
-                        </div>
-                        
-                        <div style="margin-left: 200px; padding-top: 50px;">
-                            <img src="{% static 'assets/imgs/page/QR.png' %}" alt="Description of image" style="width: 100%; max-width: 300px;">
-                        </div>
-                    </div>
+
+
+
                     
                 </div>
                 <div class="col-lg-5">
@@ -83,8 +104,7 @@
                                     <tr>
                                         <td class="image product-thumbnail"><img src="{{ item.image }}" alt="#"></td>
                                         <td>
-                                            <h6 class="w-160 mb-5"><a href="{% url 'core:product-detail' item.pid %}" class="text-heading">{{item.title}}</a></h6></span>
-                                            
+                                            <h6 class="w-160 mb-5"><a href="{% url 'core:product-detail' item.pid %}" class="text-heading">{{item.title}}</a></h6>
                                         </td>
                                         <td>
                                             <h6 class="text-muted pl-20 pr-20">x {{ item.qty }}</h6>
@@ -106,5 +126,54 @@
             </div>
         </div>
     </main>
+<script>
+    $(document).ready(function() {
+    // Add click event listener to the finish order button
+    $('#finish_order_btn').click(function(event) {
+        // Check if any of the specified form fields are empty
+        var fname = $('input[name="fname"]').val().trim();
+            var lname = $('input[name="lname"]').val().trim();
+            var address = $('input[name="billing_address"]').val().trim();
+
+            var isEmpty = fname === '' || lname === '' || address === '';
+        // If any field is empty, prevent form submission
+        if (isEmpty) {
+                event.preventDefault();
+                event.stopPropagation();
+                $('#error_message').text('Please fill out all required fields.').show();
+            } else {
+                // Clear error message if all fields are filled
+                $('#error_message').hide().text('');
+            }
+    });
+});
+$(document).ready(function() {
+    // Hide the image and comments fields initially
+    $('#checkPayment').hide();
+    // Disable the image and comments fields initially
+    $('#cheque_picture, #comments').prop('disabled', true);
+
+    // Add change event listener to the payment option radio buttons
+    $('input[name="payment_option"]').change(function() {
+        // Get the value of the selected payment option
+        var selectedOption = $(this).val();
+
+        // Check if the selected option is "Pay with cart and upload the check"
+        if (selectedOption === 'cart_and_check') {
+            // Show the image and comments fields
+            $('#checkPayment').slideDown();
+            // Add the "required" attribute to the image and comments fields
+            $('#cheque_picture, #comments').prop('required', true);
+            $('#cheque_picture, #comments').prop('disabled', false);
+        } else {
+            // Hide the image and comments fields
+            $('#checkPayment').slideUp();
+            // Remove the "required" attribute from the image and comments fields
+            $('#cheque_picture, #comments').prop('required', false);
+            $('#cheque_picture, #comments').prop('disabled', true);
+        }
+    });
+});
+</script>
 {% endblock content %}
     

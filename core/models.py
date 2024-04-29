@@ -91,6 +91,12 @@ class Vendor(models.Model):
         return self.title
 
 
+UNIT_CHOICES = [
+    ('KG', 'Kilogram'),
+    ('PC', 'Piece'),
+]
+
+
 class Product(models.Model):
     pid = ShortUUIDField(unique=True, length=10,
                          max_length=20, alphabet="abcdefgh12345")
@@ -110,7 +116,7 @@ class Product(models.Model):
     price = models.DecimalField(
         max_digits=99999999999999, decimal_places=2, default="1.99")
     old_price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="2.99")
+        max_digits=99999999999999, decimal_places=2, null=True, blank=True)
 
     specifications = CKEditor5Field(config_name='extends', null=True, blank=True)
     # specifications = models.TextField(null=True, blank=True)
@@ -118,6 +124,7 @@ class Product(models.Model):
         max_length=100, default="Organic", null=True, blank=True)
     stock_count = models.CharField(
         max_length=100, default="10", null=True, blank=True)
+    unit = models.CharField(choices=UNIT_CHOICES, max_length=2, default='KG')
     life = models.CharField(
         max_length=100, default="100 Days", null=True, blank=True)
     mfd = models.DateTimeField(auto_now_add=False, null=True, blank=True)
@@ -150,8 +157,10 @@ class Product(models.Model):
         return self.title
 
     def get_precentage(self):
-        new_price = (self.price / self.old_price) * 100
-        return new_price
+        if self.old_price is not None and self.old_price != 0:
+            new_price = (self.price / self.old_price) * 100
+            return new_price
+        return 0  # or any default value you prefer
 
 
 class ProductImages(models.Model):
@@ -172,7 +181,7 @@ class ProductImages(models.Model):
 
 
 class CartOrder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     price = models.DecimalField(
         max_digits=99999999999999, decimal_places=2, default="1.99")
     paid_status = models.BooleanField(default=False, null=True, blank=True)
@@ -181,6 +190,9 @@ class CartOrder(models.Model):
         choices=STATUS_CHOICE, max_length=30, default="processing")
     sku = ShortUUIDField(null=True, blank=True, length=5,
                          prefix="SKU", max_length=20, alphabet="abcdefgh12345")
+    cheque_picture = models.ImageField(upload_to='cheque_pictures', null=True, blank=True)
+    comments = models.TextField(null=True, blank=True)
+    payment_method = models.CharField(max_length=100, default="COD")
 
     class Meta:
         verbose_name_plural = "Cart Order"
@@ -188,6 +200,7 @@ class CartOrder(models.Model):
 
 class CartOrderProducts(models.Model):
     order = models.ForeignKey(CartOrder, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     invoice_no = models.CharField(max_length=200)
     product_status = models.CharField(max_length=200)
     item = models.CharField(max_length=200)

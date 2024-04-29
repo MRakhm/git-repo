@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 
@@ -26,7 +25,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-
+    <style>
+    .suggestion-container {
+        display: none;
+    }
+</style>
 </head>
 
 <body>
@@ -126,7 +129,7 @@
         <div class="mobile-promotion">
             <span>Grand opening, <strong>up to 15%</strong> off all items. Only <strong>3 days</strong> left</span>
         </div>
-        
+
         <div class="header-middle header-middle-ptb-1 d-none d-lg-block">
             <div class="container">
                 <div class="header-wrap">
@@ -135,22 +138,22 @@
                     </div>
                     <div class="header-right">
                         <div class="search-style-2">
-                            <form action="{% url 'core:search' %}" method="GET">
-                                <select class="select-active">
+                            <form id="large-screen-search-form" action="{% url 'core:search' %}" method="GET">
+                                <select class="select-active" id="category-select">
                                     <option>All Categories</option>
                                     <option>Grocery Essentials</option>
                                     <option>Cloths & Fashion</option>
                                     <option>Vegetables & Fruit</option>
-                                    <option>Everyday Iteams</option>
+                                    <option>Everyday Items</option>
                                     <option>Skin Solutions</option>
                                     <option>Gadget Zone</option>
                                     <option>Aroma Boutique</option>
                                     <option>Outdoor & Leisure</option>
                                 </select>
-                                <input type="text" placeholder="Search for items..." name="q" />
-                                <button class="material-symbols-outlined" type="submit"><span class="material-symbols-outlined">search</span></button>
-
+                                <input type="text" placeholder="Search for items..." id="large-screen-search-input" name="q" />
+                                <button class="material-symbols-outlined" type="submit"><span class="material-symbols-outlined">Search</span></button>
                             </form>
+                            <div id="large-screen-suggestions" style="height:auto; background:aliceblue; margin-left: 20%; width: max-content;" class="form-control suggestion-container"></div>
                         </div>
                         <div class="header-action-right">
                             <div class="header-action-2">
@@ -301,11 +304,11 @@
                             </nav>
                         </div>
                     </div>
-                    
+
                     <div class="hotline d-none d-lg-flex">
                         <img src="{% static 'assets/imgs/theme/icons/icon-headphone.svg' %}" alt="hotline" />
                         <p>50-111-11-11<span>24/7 Support Center</span></p>
-                        
+
                     </div>
                     <div class="mobile-social-icon">
                         <a href="#"><img src="{% static 'assets/imgs/theme/icons/whatsapp-icon.svg' %}" alt="whatsapp-icon" /></a>
@@ -379,10 +382,11 @@
             </div>
             <div class="mobile-header-content-area">
                 <div class="mobile-search search-style-3 mobile-header-border">
-                    <form action="#">
-                        <input type="text" placeholder="Search for items…" />
+                    <form id="mobile-search-form" action="{% url 'core:search' %}" method="GET">
+                        <input type="text" placeholder="Search for items…" id="mobile-search-input" name="q" />
                         <button type="submit"><i class="fi-rs-search"></i></button>
                     </form>
+                    <div id="mobile-suggestions" style="height:auto; background:aliceblue; width: max-content;" class="form-control suggestion-container"></div>
                 </div>
                 <div class="mobile-menu-wrap mobile-header-border">
                     <!-- mobile menu start -->
@@ -390,7 +394,7 @@
                         <ul class="mobile-menu font-heading">
                             <li class="menu-item-has-children">
                                 <a href="/">Home</a>
-                                
+
                             </li>
                             <li class="menu-item-has-children">
                                 <a href="#">shop</a>
@@ -584,9 +588,9 @@
                         <p>50-111-11-11<span>24/7 Support Center</span></p>
                     </div>
                     <div class="hotline d-lg-inline-flex">
-                        <img src="{% static 'assets/imgs/theme/icons/icon-location.svg' %}" alt="" /><strong>Address: </strong> <span>ITTIHOD Shop, Khorog, GBAO, Tajikistan</span></li>
-                        
-                    </div> 
+                        <img src="{% static 'assets/imgs/theme/icons/icon-location.svg' %}" alt="" /><strong>Address: </strong> <span>ITTIHOD Shop, Khorog, GBAO, Tajikistan</span>
+
+                    </div>
                 </div>
                 <div class="col-xl-2 col-lg-6 col-md-6 text-end d-none d-md-block" style="margin-top: 35px;">
                     <div class="mobile-social-icon">
@@ -638,5 +642,54 @@
     <script src="{% static 'assets/js/shop.js' %}"></script>
     <script src="{% static 'assets/js/function.js' %}"></script>
 </body>
+<script>
+    $(document).ready(function() {
+        function handleSearchSuggestions(inputFieldId, suggestionsDivId) {
+            $('#' + inputFieldId).on('input', function() {
+                var query = $(this).val();
+                if (query.length > 0) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/search_characters/',
+                        data: { 'q': query },
+                        success: function(data) {
+                            displaySuggestions(data, suggestionsDivId);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error);
+                        }
+                    });
+                } else {
+                    $('#' + suggestionsDivId).empty().hide();
+                }
+            });
 
+            function displaySuggestions(suggestions, suggestionsDivId) {
+                var suggestionsDiv = $('#' + suggestionsDivId);
+                suggestionsDiv.empty();
+                if (suggestions.length > 0) {
+                    var list = $('<ul>');
+                    suggestions.forEach(function(suggestion) {
+                        list.append('<li class="suggestion-item">' + suggestion + '</li>');
+                    });
+                    suggestionsDiv.append(list).show();
+                    $('.suggestion-item').mouseenter(function() {
+                        $(this).css('cursor', 'pointer');
+                    }).mouseleave(function() {
+                        $(this).css('cursor', 'default');
+                    }).click(function() {
+                        var suggestionText = $(this).text();
+                        $('#' + inputFieldId).val(suggestionText).focus();
+                        suggestionsDiv.empty().hide();
+                    });
+                } else {
+                    suggestionsDiv.hide();
+                }
+            }
+        }
+
+        handleSearchSuggestions('mobile-search-input', 'mobile-suggestions');
+        handleSearchSuggestions('large-screen-search-input', 'large-screen-suggestions');
+    });
+</script>
 </html>

@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
-  
+
 <section class="content-main">
     <div class="content-header">
         <div>
@@ -46,7 +46,7 @@
                     <div class="text">
                         <h6 class="mb-1 card-title">Products</h6>
                         <span>{% if all_products %}{{ all_products.count }}{% else %}0{% endif %}</span>
-                        <span class="text-sm"> In {{all_categories.count}} Categories </span>
+                        <span class="text-sm"> In {{distinct_categories.count}} Categories </span>
                     </div>
                 </article>
             </div>
@@ -71,28 +71,18 @@
             <h4 class="card-title">Latest orders</h4>
             <div class="row align-items-center">
                 <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                    <div class="custom_select">
-                        <select class="form-select select-nice">
-
-                            {% for c in all_categories %}
-                            <option selected>{{c.title|title}}</option>
-                            {% endfor %}
-                                    
-                            </select>
-                    </div>
                 </div>
                 <div class="col-md-2 col-6">
-                    <input type="date" value="02.05.2021" class="form-control" />
+                    <input type="date" id="dateSelect" class="form-control"/>
                 </div>
-                <div class="col-md-2 col-6">
+                <div class="col-md-3 col-6">
                     <div class="custom_select">
-                        <select class="form-select select-nice">
-                                <option selected>Status</option>
-                                <option>All</option>
-                                <option>Paid</option>
-                                <option>Chargeback</option>
-                                <option>Refund</option>
-                            </select>
+                        <select class="form-select select-nice" id="statusSelect">
+                            <option selected>Payment Status</option>
+                            <option>All</option>
+                            <option>Paid</option>
+                            <option>Not Paid</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -100,7 +90,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <div class="table-responsive">
-                    <table class="table align-middle table-nowrap mb-0">
+                    <table class="table align-middle table-nowrap mb-0" id="ordersTable">
                         <thead class="table-light">
                             <tr>
                                 <th scope="col" class="text-center">
@@ -119,7 +109,7 @@
                         </thead>
                         <tbody>
                             {% for l in latest_orders %}
-                            <tr>
+                            <tr data-category="{{ l.category.title }}" data-status="{% if l.paid_status %}Paid{% else %}Not Paid{% endif %}">
                                 <td class="text-center">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="transactionCheck02" />
@@ -137,7 +127,7 @@
                                     <span class="badge badge-pill badge-soft-danger">Not Paid</span>
                                     {% endif %}
                                 </td>
-                                <td><i class="material-icons md-payment font-xxl text-muted mr-5"></i> Paypal</td>
+                                <td>{{ l.payment_method }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -162,6 +152,50 @@
         </nav>
     </div>
 </section>
+<script>
+    // Function to parse date string into a comparable format (without time)
+    function parseDate(dateStr) {
+        var parts = dateStr.split(',');
+        // Take the first two parts and join them back together
+        var datePart = parts[0].trim() + ',' + parts[1].trim();
+        // Create a new Date object using the date part
+        var inputDate = new Date(datePart);
 
+        // Extract year, month, and date components
+        var year = inputDate.getFullYear();
+        var month = inputDate.getMonth() + 1; // Months are zero-based, so add 1
+        var date = inputDate.getDate();
+
+        // Format the date in YYYY-MM-DD format
+        var formattedDate = year + "-" + (month < 10 ? '0' : '') + month + "-" + (date < 10 ? '0' : '') + date;
+        return formattedDate;
+    }
+    // Function to filter orders based on date and payment status
+    function filterOrders() {
+        var selectedDate = document.getElementById('dateSelect').value;
+        var selectedStatus = document.getElementById('statusSelect').value;
+        // Loop through each order row
+        var orders = document.querySelectorAll('#ordersTable tbody tr');
+        orders.forEach(function(order) {
+            var date = parseDate(order.querySelector('td:nth-child(4)').textContent); // Assuming the date is in the fourth column
+            var status = order.getAttribute('data-status');
+
+            // Check if the order matches the selected date, and payment status
+            if ((!selectedDate || selectedDate == date) &&
+                (selectedStatus == 'Payment Status' || selectedStatus == 'All' || (selectedStatus == 'Paid' && status == 'Paid') || (selectedStatus == 'Not Paid' && status != 'Paid'))) {
+                order.style.display = 'table-row';
+            } else {
+                order.style.display = 'none';
+            }
+        });
+    }
+
+    // Call the filterOrders function when the date, or payment status filters change
+    document.getElementById('dateSelect').addEventListener('change', filterOrders);
+    document.getElementById('statusSelect').addEventListener('change', filterOrders);
+
+    // Initial filtering when the page loads
+    window.onload = filterOrders;
+</script>
 {% endblock content %}
         
