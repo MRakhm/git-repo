@@ -88,23 +88,23 @@ WSGI_APPLICATION = 'ecomprj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': BASE_DIR / 'db.sqlite3',
-   }
-}
-
 # DATABASES = {
-#      "default": {
-#          "ENGINE": "django.db.backends.postgresql",
-#          "NAME": "alicart",
-#          "USER": "postgres",
-#          "PASSWORD": "DataBase24",
-#          "HOST": "127.0.0.1",
-#          "PORT": "5432",
-#      }
-#  }
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+# }
+
+DATABASES = {
+     "default": {
+         "ENGINE": "django.db.backends.postgresql",
+         "NAME": "alicart",
+         "USER": "postgres",
+         "PASSWORD": "majid.123",
+         "HOST": "127.0.0.1",
+         "PORT": "5432",
+     }
+ }
 
 
 # Password validation
@@ -164,6 +164,14 @@ JAZZMIN_SETTINGS = {
     'site_brand': "You order, we deliver",
     'site_logo': "assets/imgs/theme/loading.gif",
     'copyright': "alicart.com",
+    # "custom_links": {
+    #     "useradmin": [{
+    #         "name": "Dashboard Statistics",
+    #         "url": "dashboard_statistics",
+    #         "icon": "fas fa-chart-line",  # Choose an appropriate icon
+    #         "permissions": ["core.view_dashboard_statistics"]
+    #     }]
+    # },
 }
 
 

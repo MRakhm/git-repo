@@ -1,7 +1,9 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.generic import ListView
 from taggit.models import Tag
 from core.models import Product, Vendor, CartOrderProducts, ProductReview, wishlist_model, Address
 from userauths.models import ContactUs, Profile
@@ -843,5 +845,3 @@ def generate_report(request):
     doc.build(report_elements)
 
     return response
-
-

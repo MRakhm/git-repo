@@ -23,7 +23,6 @@ def dashboard(request):
     all_products = user.product_set.all()
     distinct_categories = all_products.values('category').distinct()
     all_categories = Category.objects.all()
-    new_customers = User.objects.all().order_by("-id")[:6]
     latest_orders = user.cartorder_set.all()
 
     this_month = datetime.datetime.now().month
@@ -35,7 +34,6 @@ def dashboard(request):
         "all_products": all_products,
         "distinct_categories": distinct_categories,
         "all_categories": all_categories,
-        "new_customers": new_customers,
         "latest_orders": latest_orders,
         "total_orders_count": total_orders_count,
     }
@@ -178,8 +176,6 @@ def dashboard_statistics_superuser(request):
     total_orders_count = CartOrder.objects.all()
     all_products = Product.objects.all()
     all_categories = Category.objects.all()
-    new_customers = User.objects.all().order_by("-id")[:6]
-    latest_orders = CartOrder.objects.all()
 
     this_month = datetime.datetime.now().month
     monthly_revenue = CartOrder.objects.filter(order_date__month=this_month).aggregate(price=Sum("price"))
@@ -189,8 +185,6 @@ def dashboard_statistics_superuser(request):
         "revenue": revenue,
         "all_products": all_products,
         "all_categories": all_categories,
-        "new_customers": new_customers,
-        "latest_orders": latest_orders,
         "total_orders_count": total_orders_count,
     }
     return render(request, "useradmin/dashboard_statistics.html", context)

@@ -72,6 +72,9 @@ def verify_otp_view(request):
 
 
 def register_view(request):
+    if request.user.is_authenticated:
+        messages.warning(request, f"Hey you are already Logged In.")
+        return redirect("core:index")
     if request.method == "POST":
         form = UserRegisterForm(request.POST or None)
         if form.is_valid():
@@ -143,6 +146,9 @@ def profile_update(request):
 
 
 def forgot_password(request):
+    if request.user.is_authenticated:
+        messages.warning(request, f"Hey you are already Logged In.")
+        return redirect("core:index")
     if request.method == "POST":
         email = request.POST.get('email')
         password1 = request.POST.get('password1')

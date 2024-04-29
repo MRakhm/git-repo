@@ -113,10 +113,8 @@ class Product(models.Model):
     # description = models.TextField(null=True, blank=True, default="This is the product")
     description = CKEditor5Field(config_name='extends', null=True, blank=True)
 
-    price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99")
-    old_price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default="1.99")
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     specifications = CKEditor5Field(config_name='extends', null=True, blank=True)
     # specifications = models.TextField(null=True, blank=True)
@@ -183,7 +181,7 @@ class ProductImages(models.Model):
 class CartOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99")
+        max_digits=10, decimal_places=2, default="1.99")
     paid_status = models.BooleanField(default=False, null=True, blank=True)
     order_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     product_status = models.CharField(
@@ -207,9 +205,9 @@ class CartOrderProducts(models.Model):
     image = models.CharField(max_length=200)
     qty = models.IntegerField(default=0)
     price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99")
+        max_digits=10, decimal_places=2, default="1.99")
     total = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99")
+        max_digits=10, decimal_places=2, default="1.99")
 
     class Meta:
         verbose_name_plural = "Cart Order Items"

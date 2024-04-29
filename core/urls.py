@@ -1,4 +1,5 @@
 from django import views
+from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path, include
 from core.views import generate_report, add_to_cart, add_to_wishlist, ajax_add_review, ajax_contact_form, cart_view, \
     category_list_view, category_product_list__view, checkout_view, customer_dashboard, delete_item_from_cart, \
@@ -17,6 +18,7 @@ urlpatterns = [
     path("product/<pid>/", product_detail_view, name="product-detail"),
 
     # Category
+    path("category/", category_list_view, name="category-list"),
     path("category/", category_list_view, name="category-list"),
     path("category/<cid>/", category_product_list__view, name="category-product-list"),
 
@@ -49,7 +51,7 @@ urlpatterns = [
     # Update  Cart
     path("update-cart/", update_cart, name="update-cart"),
 
-      # Checkout  URL
+    # Checkout  URL
     path("checkout/", checkout_view, name="checkout"),
 
     # Paypal URL
@@ -76,10 +78,8 @@ urlpatterns = [
     # adding to wishlist
     path("add-to-wishlist/", add_to_wishlist, name="add-to-wishlist"),
 
-
     # Remvoing from wishlist
     path("remove-from-wishlist/", remove_wishlist, name="remove-from-wishlist"),
-
 
     path("contact/", contact, name="contact"),
     path("ajax-contact-form/", ajax_contact_form, name="ajax-contact-form"),
@@ -88,14 +88,14 @@ urlpatterns = [
     path("privacy_policy/", privacy_policy, name="privacy_policy"),
     path("terms_of_service/", terms_of_service, name="terms_of_service"),
 
-    #Redirecting to sign-in page
+    # Redirecting to sign-in page
     path("sign-in/", sign_in, name="sign_in"),
 
-     #Redirecting to sign-up page
+    # Redirecting to sign-up page
     path("sign-up/", sign_up, name="sign_up"),
 
     path('generate-report/', generate_report, name='generate_report'),
 
-    #Change password
+    # Change password
     path('change-password/', change_password, name='change-password'),
 ]
