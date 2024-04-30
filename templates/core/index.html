@@ -57,9 +57,7 @@
                         <div class="tab-content" id="myTabContent">
                             <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
                                 <div class="row product-grid-4">
-                                    
                                     {% for p in products %}
-                                    <h1>Majid</h1>
                                     <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
                                         <div class="product-cart-wrap mb-30">
                                             <div class="product-img-action-wrap">
@@ -2988,16 +2986,16 @@
                     <div class="sidebar-widget widget-category-2 mb-30">
                         <h5 class="section-title style-1 mb-30">Category</h5>
                         <ul>
-                            
+
                             {% for c in categories %}
                             <li>
                                 <a href="{% url 'core:category-product-list' c.cid %}"> <img src="{{ c.image.url }}" alt="" style="width: 30px; height: 30px; object-fit: cover; border-radius: 10px;" />{{c.title}}</a><span class="count">{{c.product_count}}</span>
                             </li>
                             {% endfor %}
-                            
+
                         </ul>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -3038,7 +3036,7 @@
                             <h6>
                                 <a href="shop-grid-right.html">Vegetables <br />& Fruit</a>
                             </h6>
-                        </div>                        
+                        </div>
                         <div class="card-1">
                             <figure class="img-hover-scale overflow-hidden">
                                 <a href="shop-grid-right.html"><img src="{% static 'assets/imgs/theme/icons/category-5.svg' %}" alt="" /></a>
@@ -3047,7 +3045,7 @@
                                 <a href="shop-grid-right.html">Packaged <br />fast food</a>
                             </h6>
                         </div>
-                        
+
                         <div class="card-1">
                             <figure class="img-hover-scale overflow-hidden">
                                 <a href="shop-grid-right.html"><img src="{% static 'assets/imgs/theme/icons/category-2.svg' %}" alt="" /></a>
@@ -3114,10 +3112,10 @@
                                         <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>{{ product.price }}</span>
+                                        <span>TJS{{ product.price }}</span>
                                         <!-- You can add old price if available -->
                                         {% if product.old_price %}
-                                            <span class="old-price">{{ product.old_price }}</span>
+                                            <span class="old-price">TJS{{ product.old_price }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -3144,9 +3142,9 @@
                                         <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>{{ product.price }}</span>
+                                        <span>TJS{{ product.price }}</span>
                                         {% if product.old_price %}
-                                        <span class="old-price">{{ product.old_price }}</span>
+                                        <span class="old-price">TJS{{ product.old_price }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -3176,9 +3174,9 @@
                                         <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>{{ product.price }}</span>
+                                        <span>TJS{{ product.price }}</span>
                                         {% if product.old_price %}
-                                        <span class="old-price">{{ product.old_price }}</span>
+                                        <span class="old-price">TJS{{ product.old_price }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -3207,9 +3205,9 @@
                                         <span class="font-small ml-5 text-muted"> ({{ product.display_rating }})</span>
                                     </div>
                                     <div class="product-price">
-                                        <span>{{ product.price }}</span>
+                                        <span>TJS{{ product.price }}</span>
                                         {% if product.old_price %}
-                                        <span class="old-price">{{ product.old_price }}</span>
+                                        <span class="old-price">TJS{{ product.old_price }}</span>
                                         {% endif %}
                                     </div>
                                 </div>

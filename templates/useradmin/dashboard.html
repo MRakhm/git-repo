@@ -20,8 +20,7 @@
                     <span class="icon icon-sm rounded-circle bg-primary-light"><i class="text-primary material-icons md-monetization_on"></i></span>
                     <div class="text">
                         <h6 class="mb-1 card-title">Revenue</h6>
-                        <!-- <span>$13,456.5</span> -->
-                        <span>${% if revenue.price %}{{ revenue.price|floatformat:2|intcomma }}{% else %}0{% endif %}</span>
+                        <span>TJS {% if revenue %}{{ revenue|floatformat:2|intcomma }}{% else %}0{% endif %}</span>
                         <span class="text-sm"> Shipping fees are not included </span>
                     </div>
                 </article>
@@ -33,7 +32,7 @@
                     <span class="icon icon-sm rounded-circle bg-success-light"><i class="text-success material-icons md-local_shipping"></i></span>
                     <div class="text">
                         <h6 class="mb-1 card-title">Orders</h6>
-                        <span>{% if total_orders_count %}{{ total_orders_count.count }}{% else %}0{% endif %}</span>
+                        <span>{% if total_orders_count %}{{ total_orders_count }}{% else %}0{% endif %}</span>
                         <span class="text-sm"> Excluding orders in transit </span>
                     </div>
                 </article>
@@ -57,8 +56,7 @@
                     <span class="icon icon-sm rounded-circle bg-info-light"><i class="text-info material-icons md-shopping_basket"></i></span>
                     <div class="text">
                         <h6 class="mb-1 card-title">Monthly Earning</h6>
-                        <!-- <span>$6,982</span> -->
-                        <span>{% if monthly_revenue.price %}{{ monthly_revenue.price|floatformat:2|intcomma }}{% else %}0{% endif %}</span>
+                        <span>TJS {% if monthly_revenue %}{{ monthly_revenue|floatformat:2|intcomma }}{% else %}0{% endif %}</span>
                         <span class="text-sm"> Based in your local time. </span>
                     </div>
                 </article>
@@ -108,26 +106,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for l in latest_orders %}
-                            <tr data-category="{{ l.category.title }}" data-status="{% if l.paid_status %}Paid{% else %}Not Paid{% endif %}">
+                            {% for order_id, order_info in orders_data.items %}
+                            <tr data-category="{{ l.category.title }}" data-status="{% if order_info.payment_status %}Paid{% else %}Not Paid{% endif %}">
                                 <td class="text-center">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="transactionCheck02" />
                                         <label class="form-check-label" for="transactionCheck02"></label>
                                     </div>
                                 </td>
-                                <td><a href="#" class="fw-bold">#{{l.sku}}</a></td>
-                                <td>{{l.user.username|title}}</td>
-                                <td>{{l.order_date}}</td>
-                                <td>${{l.price}}</td>
+                                <td><a href="#" class="fw-bold">#{{ order_info.sku }}</a></td>
+                                <td>{{ order_info.username|title}}</td>
+                                <td>{{ order_info.order_date }}</td>
+                                <td>TJS {{ order_info.total_price }}</td>
                                 <td>
-                                    {% if l.paid_status == True %}
+                                    {% if order_info.payment_status == True %}
                                     <span class="badge badge-pill badge-soft-success">Paid</span>
                                     {% else %}
                                     <span class="badge badge-pill badge-soft-danger">Not Paid</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ l.payment_method }}</td>
+                                <td>{{ order_info.payment_method }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

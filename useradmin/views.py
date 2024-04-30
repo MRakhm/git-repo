@@ -1,16 +1,14 @@
 import datetime
 import string
 import random
-import re
-from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from taggit.models import Tag, TaggedItem
+from taggit.models import Tag
 
-from core.models import CartOrder, Product, Category
-from django.db.models import Sum
+from core.models import CartOrder, Product, Category, CartOrderProducts
+from django.db.models import Sum, Count
 from userauths.models import User, TempUser
 from useradmin.forms import AddProductForm
 
@@ -18,23 +16,49 @@ from useradmin.forms import AddProductForm
 @login_required
 def dashboard(request):
     user = request.user
-    revenue = user.cartorder_set.aggregate(price=Sum("price"))
-    total_orders_count = user.cartorder_set.all()
     all_products = user.product_set.all()
     distinct_categories = all_products.values('category').distinct()
-    all_categories = Category.objects.all()
-    latest_orders = user.cartorder_set.all()
 
+    user_products = Product.objects.filter(user=user)
+
+    # Calculate total revenue for the user's products
+    revenue = user_products.aggregate(total=Sum('cartorderproducts__total'))['total']
+
+    # Calculate total number of orders for the user's products
+    total_orders_count = user_products.aggregate(total_orders=Count('cartorderproducts__order', distinct=True))['total_orders']
+
+    # Retrieve all CartOrderProducts related to user's products
+    cart_order_products = CartOrderProducts.objects.filter(product__in=user_products)
+
+    # Grouping cart_order_products by order ID and calculating total price for each order
+    orders_data = {}
+    for cart_order_product in cart_order_products:
+        order_id = cart_order_product.order_id
+        if order_id in orders_data:
+            orders_data[order_id]['total_price'] += cart_order_product.total
+        else:
+            orders_data[order_id] = {
+                'order_date': cart_order_product.order.order_date,
+                'payment_method': cart_order_product.order.payment_method,
+                'payment_status': cart_order_product.order.paid_status,
+                'sku': cart_order_product.order.sku,
+                'total_price': cart_order_product.total,
+                'username': cart_order_product.order.user
+            }
+
+    # Sort orders_data by order_date in descending order
+    ordered_orders_data = dict(sorted(orders_data.items(), key=lambda item: item[1]['order_date'], reverse=True))
+
+    # Calculate total monthly revenue for the currently logged-in user
     this_month = datetime.datetime.now().month
-    monthly_revenue = user.cartorder_set.filter(order_date__month=this_month).aggregate(price=Sum("price"))
+    monthly_revenue = sum(order_info['total_price'] for order_info in orders_data.values() if order_info['order_date'].month == this_month)
 
     context = {
         "monthly_revenue": monthly_revenue,
         "revenue": revenue,
         "all_products": all_products,
         "distinct_categories": distinct_categories,
-        "all_categories": all_categories,
-        "latest_orders": latest_orders,
+        "orders_data": ordered_orders_data,
         "total_orders_count": total_orders_count,
     }
     return render(request, "useradmin/dashboard.html", context)
