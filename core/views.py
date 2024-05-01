@@ -1,20 +1,19 @@
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView
 from taggit.models import Tag
 from core.models import Product, Vendor, CartOrderProducts, ProductReview, wishlist_model, Address
 from userauths.models import ContactUs, Profile
 from core.forms import ProductReviewForm
 from django.contrib import messages
-
 from django.urls import reverse
 from django.conf import settings
 from paypal.standard.forms import PayPalPaymentsForm
 from django.contrib.auth.decorators import login_required
-
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from .forms import ContactForm
 import calendar
 from django.db.models import Count, Avg, Q, Sum
 from django.db.models.functions import ExtractMonth
@@ -513,6 +512,7 @@ def payment_failed_view(request):
 
 @login_required
 def change_password(request):
+    request.session['change_password_tab_active'] = False
     if request.method == 'POST':
         # Retrieve password fields from the request
         current_password = request.POST.get('password')
@@ -522,11 +522,15 @@ def change_password(request):
         # Check if the current password is correct
         if not request.user.check_password(current_password):
             messages.error(request, 'Your current password is incorrect.')
+            # If password change failed, set the flag to False
+            request.session['change_password_tab_active'] = True
             return redirect('core:dashboard')
 
         # Check if the new password and confirm password match
         if new_password != confirm_password:
             messages.error(request, 'New password and confirm password do not match.')
+            # If password change failed, set the flag to False
+            request.session['change_password_tab_active'] = True
             return redirect('core:dashboard')
 
         # Update the user's password
@@ -594,6 +598,16 @@ def customer_dashboard(request):
     user_profile = Profile.objects.get(user=request.user)
     # print("user profile is: #########################",  user_profile)
 
+    # Check change password success or failure
+    if 'change_password_tab_active' in request.session:
+        if request.session['change_password_tab_active']:
+            cp_tab_active = True
+            del request.session['change_password_tab_active']
+        else:
+            cp_tab_active = False
+    else:
+        cp_tab_active = False
+
     context = {
         "user_profile": user_profile,
         "orders": orders,
@@ -601,6 +615,7 @@ def customer_dashboard(request):
         "address": address,
         "month": month,
         "total_orders": total_orders,
+        'cp_tab_active': cp_tab_active,
     }
     return render(request, 'core/dashboard.html', context)
 
@@ -687,11 +702,6 @@ def remove_wishlist(request):
     wishlist_json = serializers.serialize('json', wishlist)
     t = render_to_string('core/async/wishlist-list.html', context)
     return JsonResponse({'data':t,'w':wishlist_json})
-
-
-from django.shortcuts import render, redirect
-from django.core.mail import send_mail
-from .forms import ContactForm
 
 
 def contact(request):
