@@ -1,6 +1,8 @@
 import datetime
 import string
 import random
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import JsonResponse
@@ -212,3 +214,51 @@ def dashboard_statistics_superuser(request):
         "total_orders_count": total_orders_count,
     }
     return render(request, "useradmin/dashboard_statistics.html", context)
+
+
+@login_required
+def add_multiple_products(request):
+    # Check if the form has been submitted previously
+    form_submitted = request.session.get('form_submitted', False)
+    if request.method == 'POST':
+        form = AddProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_form = form.save(commit=False)
+            # Ensure old_price is None if it's empty or contains invalid data
+            old_price = form.cleaned_data.get('old_price')
+            if old_price == '':
+                new_form.old_price = None
+            else:
+                try:
+                    new_form.old_price = float(old_price)
+                except ValueError:
+                    new_form.old_price = None
+
+            # Save the form data to the Product model
+            new_form.save()
+            # Process tags input and save them properly
+            tags = form.cleaned_data.get('tags')
+            if tags:
+                # Split the tags string by comma, filter out empty strings and duplicates
+                tag_list = list(set(filter(None, (tag.strip() for tag in tags.split(',')))))
+                # Create or retrieve Tag objects for each tag in the list
+                tag_objects = [Tag.objects.get_or_create(name=tag)[0] for tag in tag_list]
+                # Set the tags for the product
+                new_form.tags.set(tag_objects)
+
+            # Set the session variable to True to indicate form submission
+            request.session['form_submitted'] = True
+            # Redirect to the same page with the filled form data
+            return redirect('useradmin:add-multiple-products')
+    else:
+        # If it's a GET request and form has been submitted previously,
+        # initialize the form with previous data
+        if form_submitted:
+            last_product = Product.objects.last()  # Get the last inserted product
+            form = AddProductForm(instance=last_product)
+            del request.session['form_submitted']
+        else:
+            # If it's a GET request and form has not been submitted previously,
+            # render the form with a new instance of the form
+            form = AddProductForm()
+    return render(request, 'useradmin/add-multiple-products.html', {'form': form})

@@ -1,0 +1,181 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin humanize %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Add Multiple Products' %} {% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item">{% trans 'Add Multiple Products' %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    {% get_side_menu using="app_list" as dashboard_list %}
+    {% if dashboard_list %}
+        {% widthratio dashboard_list|length 2 1 as middle %}
+    {% endif %}
+
+    <!-- Add product form -->
+    <div class="content">
+        <div class="container-fluid">
+            <section class="content" id="content">
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{form.errors}}</strong>
+                </div>
+                {% endif %}
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-lg-7 offset-lg-1">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Basic</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">Product title</label>
+                                        {{ form.title }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Full description</label>
+                                        {{ form.description }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Full Specification</label>
+                                        {{ form.specifications }}
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="form-label">Selling price</label>
+                                                {{ form.price }}
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="form-label">Old price</label>
+                                                {{ form.old_price }}
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="form-label">Currency</label>
+                                                <select class="form-control">
+                                                    <option>TJS</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Type</label>
+                                        {{ form.type }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Stock</label>
+                                        {{ form.stock_count }}
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-lg-6">
+                                            <label class="form-label">Unit</label>
+                                            <select class="form-control" name="unit" id="id_unit" required>
+                                                <option value="KG">Kilogram</option>
+                                                <option value="PC">Piece</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-lg-6">
+                                            <label class="form-label">Product Status</label>
+                                            <select class="form-control" name="product_status" id="id_product_status" required>
+                                                <option value="draft">Draft</option>
+                                                <option value="disabled">Disabled</option>
+                                                <option value="rejected">Rejected</option>
+                                                <option value="in_review">In Review</option>
+                                                <option value="published">Published</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Life of Product</label>
+                                        {{ form.life }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Manufactured Date</label>
+                                        {{ form.mfd }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Tags</label>
+<!--                                        {{ form.tags }}-->
+                                        <input type="text" name="tags" value="{% for tag in form.tags.value %}{{ tag }}, {% endfor %}" placeholder="Tags" class="form-control" required="" id="id_tags">
+
+                                        <small class="text-muted">Separate tags using commas</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Digital Product</label>
+                                        <div class="form-check">
+                                            {{ form.digital }}
+                                            <small class="text-muted">Check if only this is a digital product</small>
+                                        </div>
+                                    </div>
+<!--                                    <div class="form-check">-->
+<!--                                        <input class="form-check-input" type="checkbox" value="" />-->
+<!--                                        <span class="form-check-label"> Make a template </span>-->
+<!--                                    </div>-->
+                                    <div class="form-check">
+                                        {{ form.status }}
+                                        <span class="form-check-label"> Status </span>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.in_stock }}
+                                        <span class="form-check-label"> In Stock </span>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.featured }}
+                                        <span class="form-check-label"> Featured </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Media</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="input-upload">
+                                        <img style="max-width: 100px; margin-bottom: 20px;" src="{% static 'assets2/imgs/theme/upload.svg' %}" alt="" />
+                                        {{form.image}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Others</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">Category</label>
+                                        {{form.category}}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Vendor</label>
+                                        {{form.vendor}}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">User</label>
+                                        {{form.user}}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <button class="btn btn btn-success form-control" type="submit">Save and Add Next</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+{% endblock %}

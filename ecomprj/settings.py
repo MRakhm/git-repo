@@ -165,13 +165,14 @@ JAZZMIN_SETTINGS = {
     'site_logo': "assets/imgs/theme/loading.gif",
     'copyright': "alicart.com",
     # "custom_links": {
-    #     "useradmin": [{
+    #     "core": [{
     #         "name": "Dashboard Statistics",
-    #         "url": "dashboard_statistics",
+    #         "url": "/core/dashboard_statistics/",
     #         "icon": "fas fa-chart-line",  # Choose an appropriate icon
-    #         "permissions": ["core.view_dashboard_statistics"]
+            # "permissions": ["core.checkout"]
     #     }]
     # },
+
 }
 
 
