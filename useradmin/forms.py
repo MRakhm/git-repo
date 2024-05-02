@@ -1,8 +1,6 @@
 from core.models import Product, Category, Vendor
 from django import forms
-
 from userauths.models import User
-
 
 # from bootstrap_datepicker_plus import DatePickerInput
 
@@ -23,14 +21,12 @@ class AddProductForm(forms.ModelForm):
     vendor = forms.ModelChoiceField(queryset=Vendor.objects.all(), empty_label="Select Vendor",
                                     widget=forms.Select(attrs={"class": "form-control"}))
     user = forms.ModelChoiceField(queryset=User.objects.all(), empty_label="Select User",
-                                    widget=forms.Select(attrs={"class": "form-control"}))
-    # unit = forms.ChoiceField(choices=Product.UNIT_CHOICES, widget=forms.Select(attrs={"class": "form-control"}))
-    # product_status = forms.ChoiceField(choices=Product.STATUS, widget=forms.Select(attrs={"class": "form-control"}))
+                                    widget=forms.Select(attrs={"class": "form-control"}), required=False)
     status = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
     in_stock = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
     featured = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
     digital = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
-    specifications = forms.CharField(widget=forms.Textarea(attrs={'placeholder': "Product Specifications", "class": "form-control", "rows": 5}))
+    specifications = forms.CharField(widget=forms.Textarea(attrs={'placeholder': "Product Specifications", "class": "form-control", "rows": 5}), required=False)
 
     class Meta:
         model = Product
@@ -49,8 +45,6 @@ class AddProductForm(forms.ModelForm):
             'category',
             'vendor',
             'user',
-            'unit',
-            'product_status',
             'status',
             'in_stock',
             'featured',

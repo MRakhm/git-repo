@@ -122,7 +122,7 @@ class Product(models.Model):
         max_length=100, default="Organic", null=True, blank=True)
     stock_count = models.CharField(
         max_length=100, default="10", null=True, blank=True)
-    unit = models.CharField(choices=UNIT_CHOICES, max_length=2, default='KG')
+    unit = models.CharField(choices=UNIT_CHOICES, max_length=2, default='KG', null=True, blank=True)
     life = models.CharField(
         max_length=100, default="100 Days", null=True, blank=True)
     mfd = models.DateTimeField(auto_now_add=False, null=True, blank=True)
@@ -131,8 +131,7 @@ class Product(models.Model):
 
     # tags = models.ForeignKey(Tags, on_delete=models.SET_NULL, null=True)
 
-    product_status = models.CharField(
-        choices=STATUS, max_length=10, default="in_review")
+    product_status = models.CharField(choices=STATUS, max_length=10, default="in_review")
 
     status = models.BooleanField(default=True)
     in_stock = models.BooleanField(default=True)

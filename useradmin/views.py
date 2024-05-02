@@ -119,11 +119,11 @@ def dashboard_add_product(request):
 @login_required
 def dashboard_edit_product(request, pid):
     product = Product.objects.get(pid=pid)
-
     if request.method == "POST":
         form = AddProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             new_form = form.save(commit=False)
+            new_form.user = request.user
             old_price = form.cleaned_data.get('old_price')
             if old_price == '':
                 new_form.old_price = None
@@ -233,7 +233,10 @@ def add_multiple_products(request):
                     new_form.old_price = float(old_price)
                 except ValueError:
                     new_form.old_price = None
-
+            product_status = request.POST.get('product_status')
+            unit = request.POST.get('unit')
+            new_form.product_status = product_status
+            new_form.unit = unit
             # Save the form data to the Product model
             new_form.save()
             # Process tags input and save them properly
@@ -248,6 +251,7 @@ def add_multiple_products(request):
 
             # Set the session variable to True to indicate form submission
             request.session['form_submitted'] = True
+            messages.success(request, 'Product added successfully!')
             # Redirect to the same page with the filled form data
             return redirect('useradmin:add-multiple-products')
     else:
