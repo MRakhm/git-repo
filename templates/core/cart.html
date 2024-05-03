@@ -35,7 +35,7 @@
                                     <th scope="col">Unit Price</th>
                                     <th scope="col" class="text-center">Quantity</th>
                                     <th scope="col">Subtotal</th>
-                                    <th scope="col" class="">Refresh</th>
+<!--                                    <th scope="col" class="">Refresh</th>-->
                                     <th scope="col" class="end">Remove</th>
                                 </tr>
                             </thead>
@@ -62,7 +62,7 @@
                                         <h4 id="subtotal-{{ product_id }}" class="text-brand subtotal">TJS{% widthratio item.price 1 item.qty %}</h4>
                                     </td>
                                     <!-- <td class="action text-center" data-title="Refresh"><a href="#" class="text-body"><i class="fi-rs-refresh"></i></a></td> -->
-                                    <td class="action text-center" data-title="Remove"><button style="border: none; background: none;"  class="text-body update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button></td>
+<!--                                    <td class="action text-center" data-title="Remove"><button style="border: none; background: none;"  class="text-body update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button></td>-->
                                     <td class="action text-center" data-title="Remove"><button style="border: none; background: none;"  class="text-body delete-product" data-product="{{ product_id }}"><i class="fi-rs-trash"></i></button></td>
                                 </tr>
                                 {% endfor %}
@@ -122,7 +122,7 @@
             var price = parseFloat($("#price-" + productId).text().replace("TJS", ""));
             var subtotal = quantity * price;
             $("#subtotal-" + productId).text("TJS" + subtotal.toFixed(2));
-
+            $("#subtotal-" + productId).text();
             // Update cart subtotal
             var cartSubtotal = 0;
             $(".subtotal").each(function() {
@@ -135,6 +135,24 @@
             var shipping = 0; // Free shipping for now
             var total = cartSubtotal + shipping;
             $("#cart-total").text("TJS" + total.toFixed(2));
+
+            // Send AJAX request to update session data
+            $.ajax({
+                type: "GET",
+                url: "{% url 'core:update-cart' %}",
+                data: {
+                    'id': productId,
+                    'qty': quantity,
+                },
+                success: function(response) {
+                    // Update cart list asynchronously
+                    $("#cart-list").html(response.data);
+                    $("#totalcartitems").text(response.totalcartitems);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);  // Log any errors
+                }
+            });
         }
 
         // Event listener for quantity change
@@ -144,4 +162,5 @@
         });
     });
 </script>
+
 {% endblock content %}

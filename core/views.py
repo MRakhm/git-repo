@@ -1,5 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from taggit.models import Tag
@@ -328,7 +329,7 @@ def cart_view(request):
             cart_total_amount += int(item['qty']) * float(item['price'])
         return render(request, "core/cart.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']), 'cart_total_amount':cart_total_amount})
     else:
-        messages.warning(request, "Your cart is empty")
+        messages.warning(request, "Your cart is empty. Please add some items to continue shopping.")
         return redirect("core:index")
 
 
@@ -353,6 +354,10 @@ def update_cart(request):
     product_id = str(request.GET['id'])
     product_qty = request.GET['qty']
 
+    print("Idddddddddddddddddddddddddddd :", product_id)
+    print("product_qtyyyyyyyyyyyyyy  :", product_qty)
+
+
     if 'cart_data_obj' in request.session:
         if product_id in request.session['cart_data_obj']:
             cart_data = request.session['cart_data_obj']
@@ -369,65 +374,88 @@ def update_cart(request):
 
 
 # @login_required
+# def checkout_view(request):
+#     cart_total_amount = 0
+#     total_amount = 0
+#
+#     # Checking if cart_data_obj session exists
+#     if 'cart_data_obj' in request.session:
+#         # Getting total amount for Paypal Amount
+#         for p_id, item in request.session['cart_data_obj'].items():
+#             total_amount += int(item['qty']) * float(item['price'])
+#
+#         if request.user.is_authenticated:
+#             # User is authenticated, use the current user for the order
+#             user = request.user
+#         else:
+#             # User is not authenticated, use a placeholder user object
+#             user = None
+#
+#         # Save the CartOrder instance with cheque_picture and comments
+#         order = CartOrder.objects.create(
+#             user=user,
+#             price=total_amount,
+#         )
+#
+#         # Getting total amount for The Cart
+#         for p_id, item in request.session['cart_data_obj'].items():
+#             cart_total_amount += int(item['qty']) * float(item['price'])
+#
+#             # Fetch the Product instance corresponding to the product ID (pid)
+#             product = get_object_or_404(Product, pid=item['pid'])
+#
+#             cart_order_products = CartOrderProducts.objects.create(
+#                 order=order,
+#                 invoice_no="INVOICE_NO-" + str(order.id),  # INVOICE_NO-5,
+#                 item=item['title'],
+#                 image=item['image'],
+#                 qty=item['qty'],
+#                 price=item['price'],
+#                 product=product,
+#                 total=float(item['qty']) * float(item['price'])
+#             )
+#
+#         host = request.get_host()
+#         paypal_dict = {
+#             'business': settings.PAYPAL_RECEIVER_EMAIL,
+#             'amount': cart_total_amount,
+#             'item_name': "Order-Item-No-" + str(order.id),
+#             'invoice': "INVOICE_NO-" + str(order.id),
+#             'currency_code': "USD",
+#             'notify_url': 'http://{}{}'.format(host, reverse("core:paypal-ipn")),
+#             'return_url': 'http://{}{}'.format(host, reverse("core:payment-completed")),
+#             'cancel_url': 'http://{}{}'.format(host, reverse("core:payment-failed")),
+#         }
+#
+#         paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
+#
+#         # cart_total_amount = 0
+#         # if 'cart_data_obj' in request.session:
+#         #     for p_id, item in request.session['cart_data_obj'].items():
+#         #         cart_total_amount += int(item['qty']) * float(item['price'])
+#
+#         try:
+#             active_address = Address.objects.get(user=request.user, status=True)
+#         except:
+#             if request.user.is_authenticated:
+#                 messages.warning(request, "There are multiple addresses, only one should be activated.")
+#                 active_address = None
+#             else:
+#                 messages.warning(request, "")
+#                 active_address = None
+#
+#         return render(request, "core/checkout.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']), 'cart_total_amount':cart_total_amount, 'paypal_payment_button':paypal_payment_button, "active_address":active_address})
+
+
+# updated Checkout
 def checkout_view(request):
     cart_total_amount = 0
-    total_amount = 0
 
     # Checking if cart_data_obj session exists
     if 'cart_data_obj' in request.session:
-        # Getting total amount for Paypal Amount
-        for p_id, item in request.session['cart_data_obj'].items():
-            total_amount += int(item['qty']) * float(item['price'])
-
-        if request.user.is_authenticated:
-            # User is authenticated, use the current user for the order
-            user = request.user
-        else:
-            # User is not authenticated, use a placeholder user object
-            user = None
-
-        # Save the CartOrder instance with cheque_picture and comments
-        order = CartOrder.objects.create(
-            user=user,
-            price=total_amount,
-        )
-
         # Getting total amount for The Cart
         for p_id, item in request.session['cart_data_obj'].items():
             cart_total_amount += int(item['qty']) * float(item['price'])
-
-            # Fetch the Product instance corresponding to the product ID (pid)
-            product = get_object_or_404(Product, pid=item['pid'])
-
-            cart_order_products = CartOrderProducts.objects.create(
-                order=order,
-                invoice_no="INVOICE_NO-" + str(order.id),  # INVOICE_NO-5,
-                item=item['title'],
-                image=item['image'],
-                qty=item['qty'],
-                price=item['price'],
-                product=product,
-                total=float(item['qty']) * float(item['price'])
-            )
-
-        host = request.get_host()
-        paypal_dict = {
-            'business': settings.PAYPAL_RECEIVER_EMAIL,
-            'amount': cart_total_amount,
-            'item_name': "Order-Item-No-" + str(order.id),
-            'invoice': "INVOICE_NO-" + str(order.id),
-            'currency_code': "USD",
-            'notify_url': 'http://{}{}'.format(host, reverse("core:paypal-ipn")),
-            'return_url': 'http://{}{}'.format(host, reverse("core:payment-completed")),
-            'cancel_url': 'http://{}{}'.format(host, reverse("core:payment-failed")),
-        }
-
-        paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
-
-        # cart_total_amount = 0
-        # if 'cart_data_obj' in request.session:
-        #     for p_id, item in request.session['cart_data_obj'].items():
-        #         cart_total_amount += int(item['qty']) * float(item['price'])
 
         try:
             active_address = Address.objects.get(user=request.user, status=True)
@@ -439,7 +467,10 @@ def checkout_view(request):
                 messages.warning(request, "")
                 active_address = None
 
-        return render(request, "core/checkout.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']), 'cart_total_amount':cart_total_amount, 'paypal_payment_button':paypal_payment_button, "active_address":active_address})
+        return render(request, "core/checkout.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']), 'cart_total_amount': cart_total_amount, 'active_address': active_address})
+    else:
+        # Handle case where there are no items in the cart session
+        return redirect("core:cart")
 
 
 def payment_completed_view(request):
@@ -464,17 +495,35 @@ def payment_completed_view(request):
             cart_total_amount += int(item['qty']) * float(item['price'])
 
         if request.user.is_authenticated:
-            cart_order = CartOrder.objects.get(user=request.user, price=cart_total_amount, paid_status=False)
-            cart_order.comments = comments
-            cart_order.payment_method = "Cheque"
-            cart_order.cheque_picture = cheque_picture
-            cart_order.save()
+            user = request.user
         else:
-            cart_order = CartOrder.objects.get(price=cart_total_amount, paid_status=False)
-            cart_order.comments = comments
-            cart_order.payment_method = "Cheque"
-            cart_order.cheque_picture = cheque_picture
-            cart_order.save()
+            user = None
+
+        with transaction.atomic():
+            order = CartOrder.objects.create(
+                user=user,
+                price=cart_total_amount,
+                payment_method="Cheque",
+                cheque_picture=cheque_picture,
+                comments=comments
+            )
+
+            for p_id, item in cart_data.items():
+                product = get_object_or_404(Product, pid=item['pid'])
+                CartOrderProducts.objects.create(
+                    order=order,
+                    invoice_no="INVOICE_NO-" + str(order.id),
+                    item=item['title'],
+                    image=item['image'],
+                    qty=item['qty'],
+                    price=item['price'],
+                    product=product,
+                    total=float(item['qty']) * float(item['price'])
+                )
+
+            # Clear the session data after saving to database
+            del request.session['cart_data_obj']
+
     else:
         name = request.POST.get('fname')
         lname = request.POST.get('lname')
@@ -492,13 +541,32 @@ def payment_completed_view(request):
             cart_total_amount += int(item['qty']) * float(item['price'])
 
         if request.user.is_authenticated:
-            cart_order = CartOrder.objects.get(user=request.user, price=cart_total_amount, paid_status=False)
-            cart_order.payment_method = "COD"
-            cart_order.save()
+            user = request.user
         else:
-            cart_order = CartOrder.objects.get(price=cart_total_amount, paid_status=False)
-            cart_order.payment_method = "COD"
-            cart_order.save()
+            user = None
+
+        with transaction.atomic():
+            order = CartOrder.objects.create(
+                user=user,
+                price=cart_total_amount,
+                payment_method="COD"
+            )
+
+            for p_id, item in cart_data.items():
+                product = get_object_or_404(Product, pid=item['pid'])
+                CartOrderProducts.objects.create(
+                    order=order,
+                    invoice_no="INVOICE_NO-" + str(order.id),
+                    item=item['title'],
+                    image=item['image'],
+                    qty=item['qty'],
+                    price=item['price'],
+                    product=product,
+                    total=float(item['qty']) * float(item['price'])
+                )
+
+        # Clear the session data after saving to database
+        del request.session['cart_data_obj']
 
     return render(request, 'core/payment-completed.html',
                   {'name': name, 'cart_data': cart_data, 'totalcartitems': len(cart_data),

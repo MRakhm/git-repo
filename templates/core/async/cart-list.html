@@ -1,9 +1,8 @@
-
     <main class="main" id="cart-list">
         <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                    <a href="/" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
                     <span></span> Shop
                     <span></span> Cart
                 </div>
@@ -33,7 +32,7 @@
                                     <th scope="col">Unit Price</th>
                                     <th scope="col" class="text-center">Quantity</th>
                                     <th scope="col">Subtotal</th>
-                                    <th scope="col" class="">Refresh</th>
+<!--                                    <th scope="col" class="">Refresh</th>-->
                                     <th scope="col" class="end">Remove</th>
                                 </tr>
                             </thead>
@@ -47,23 +46,21 @@
                                     <td class="image product-thumbnail pt-40"><img src="{{ item.image }}" alt="#"></td>
                                     <td class="product-des product-name">
                                         <h6 class="mb-5"><a class="product-name mb-10 text-heading" href="{% url 'core:product-detail' item.pid %}">{{ item.title }}</a></h6>
-                                       
                                     </td>
                                     <td class="price" data-title="Price">
-                                        <h4 class="text-body">${{item.price|floatformat:2}}</h4>
+                                        <h4 id="price-{{ product_id }}" class="text-body">TJS{{ item.price|floatformat:2 }}</h4>
                                     </td>
                                     <td class="text-center detail-info" data-title="Stock">
                                         <div class="mr-15">
-                                            <input type="number" placeholder="Qty" class="w-25" name="" value="{{ item.qty }}" id="">
+                                            <input type="number" min="1" placeholder="Qty" class="w-25 product-qty-{{ product_id }} product-qty" data-product="{{ product_id }}" name="" value="{{ item.qty }}" id="qty-{{ product_id }}">
                                         </div>
                                     </td>
                                     <td class="price" data-title="Price">
-                                        <h4 class="text-brand">${% widthratio item.price 1 item.qty %} </h4>
+                                        <h4 id="subtotal-{{ product_id }}" class="text-brand subtotal">TJS{% widthratio item.price 1 item.qty %}</h4>
                                     </td>
-                                  
-                                    <td class="action text-center" data-title="Remove"><button style="border: none; background: none;"  class="text-body update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button></td>
+                                    <!-- <td class="action text-center" data-title="Refresh"><a href="#" class="text-body"><i class="fi-rs-refresh"></i></a></td> -->
+<!--                                    <td class="action text-center" data-title="Remove"><button style="border: none; background: none;"  class="text-body update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button></td>-->
                                     <td class="action text-center" data-title="Remove"><button style="border: none; background: none;"  class="text-body delete-product" data-product="{{ product_id }}"><i class="fi-rs-trash"></i></button></td>
-
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -80,7 +77,7 @@
                                             <h6 class="text-muted">Subtotal</h6>
                                         </td>
                                         <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">${{cart_total_amount|floatformat:2}}</h4>
+                                            <h4 id="cart-subtotal" class="text-brand text-end">TJS{{cart_total_amount|floatformat:2}}</h4>
                                         </td>
                                     </tr>
                                     <tr>
@@ -93,15 +90,15 @@
                                             <h6 class="text-muted">Shipping</h6>
                                         </td>
                                         <td class="cart_total_amount">
-                                            <h5 class="text-heading text-end">Free</h4</td> </tr> <tr>
-                                       
+                                            <h5 class="text-heading text-end">Free</h5>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">
                                             <h6 class="text-muted">Total</h6>
                                         </td>
                                         <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">${{cart_total_amount|floatformat:2}}</h4>
+                                            <h4 id="cart-total" class="text-brand text-end">TJS{{cart_total_amount|floatformat:2}}</h4>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -109,9 +106,56 @@
                         </div>
                         {% if totalcartitems %}
                         <a href="{% url 'core:checkout' %}" class="btn mb-20 w-100">Proceed To CheckOut<i class="fi-rs-sign-out ml-15"></i></a>
-                        {% endif %}
-                    </div>
+                        {% endif %}                    </div>
                 </div>
             </div>
         </div>
     </main>
+<script>
+    $(document).ready(function() {
+        // Function to update subtotal when quantity changes
+        function updateSubtotal(productId) {
+            var quantity = parseInt($("#qty-" + productId).val());
+            var price = parseFloat($("#price-" + productId).text().replace("TJS", ""));
+            var subtotal = quantity * price;
+            $("#subtotal-" + productId).text("TJS" + subtotal.toFixed(2));
+
+            // Update cart subtotal
+            var cartSubtotal = 0;
+            $(".subtotal").each(function() {
+                var subtotalValue = parseFloat($(this).text().replace("TJS", "").replace(",", ""));
+                cartSubtotal += subtotalValue;
+            });
+            $("#cart-subtotal").text("TJS" + cartSubtotal.toFixed(2));
+
+            // Update total
+            var shipping = 0; // Free shipping for now
+            var total = cartSubtotal + shipping;
+            $("#cart-total").text("TJS" + total.toFixed(2));
+
+            // Send AJAX request to update session data
+            $.ajax({
+                type: "GET",
+                url: "{% url 'core:update-cart' %}",
+                data: {
+                    'id': productId,
+                    'qty': quantity,
+                },
+                success: function(response) {
+                    // Update cart list asynchronously
+                    $("#cart-list").html(response.data);
+                    $("#totalcartitems").text(response.totalcartitems);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);  // Log any errors
+                }
+            });
+        }
+
+        // Event listener for quantity change
+        $(".product-qty").on("change", function() {
+            var productId = $(this).data("product");
+            updateSubtotal(productId);
+        });
+    });
+</script>
