@@ -128,9 +128,11 @@
                                     <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                     <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
                                 </div>
+                                {% if p.old_price %}
                                 <div class="product-badges product-badges-position product-badges-mrg">
                                     <span class="hot">-{{p.get_precentage|floatformat:0}}%</span>
                                 </div>
+                                {% endif %}
                             </div>
                             <div class="product-content-wrap">
                                 <div class="product-category">
@@ -147,7 +149,9 @@
                                 <p class="mt-15 mb-15">{{ p.description }}</p>
                                 <div class="product-price">
                                     <span>TJS{{p.price}} </span>
-                                    <span class="old-price">TJS{{p.old_price}}</span>
+                                    {% if p.old_price %}
+                                        <span class="old-price">TJS{{p.old_price}}</span>
+                                    {% endif %}
                                 </div>
                                 <div class="mt-30 d-flex align-items-center">
                                     <a aria-label="Buy now" class="btn add-to-cart-btn" href="#" data-id="{{ p.id }}" data-title="{{ p.title }}" data-qty="1" data-price="{{ p.price }}" data-image="{{ p.image.url }}" data-pid="{{ p.pid }}"><i class="fi-rs-shopping-cart mr-5"></i>Add to Cart</a>
@@ -363,7 +367,7 @@
     $(document).ready(function() {
         $('.add-to-cart-btn').click(function(e) {
             e.preventDefault(); // Prevent the default link behavior
-            
+
             // Extract data attributes from the clicked button
             var id = $(this).data('id');
             var title = $(this).data('title');
@@ -371,7 +375,7 @@
             var price = $(this).data('price');
             var image = $(this).data('image');
             var pid = $(this).data('pid');
-            
+
             // Make an AJAX request to add the item to the cart
             $.ajax({
                 url: '/add-to-cart/',

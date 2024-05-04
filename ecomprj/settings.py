@@ -164,15 +164,6 @@ JAZZMIN_SETTINGS = {
     'site_brand': "You order, we deliver",
     'site_logo': "assets/imgs/theme/loading.gif",
     'copyright': "alicart.com",
-    # "custom_links": {
-    #     "core": [{
-    #         "name": "Dashboard Statistics",
-    #         "url": "/core/dashboard_statistics/",
-    #         "icon": "fas fa-chart-line",  # Choose an appropriate icon
-            # "permissions": ["core.checkout"]
-    #     }]
-    # },
-
 }
 
 
@@ -392,10 +383,8 @@ CKEDITOR_5_CONFIGS = {
 }
 
 
-
 PAYPAL_RECEIVER_EMAIL = 'rakhmatshoeva01@gmail.com'
 PAYPAL_TEST = True
-
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -404,3 +393,17 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'advertise.website0994@gmail.com'
 EMAIL_HOST_PASSWORD = 'MGOmIXvc6gwKPQqU'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp-relay.brevo.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'alicart.eshop@gmail.com'
+# EMAIL_HOST_PASSWORD = 'miph aplk sfp fipn'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587.
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'majid.it07@gmail.com'
+# EMAIL_HOST_PASSWORD = 'fwsb ebub bczb suqi'

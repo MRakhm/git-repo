@@ -43,7 +43,7 @@
                                     <td class="image product-thumbnail pt-40"><img src="{{w.product.image.url}}" alt="#" /></td>
                                     <td class="product-des product-name">
                                         <h6><a class="product-name mb-10" href="{% url 'core:product-detail' w.product.pid %}">{{ w.product.title|truncatechars:30 }}</a></h6>
-                                        
+
                                     </td>
                                     <td class="price d-fdlex fs-1" data-title="Price">
                                         <span class="text-brand">TJS</span><span class="text-brand current-product-price-{{ w.product.id }}">{{ w.product.price }}</span>

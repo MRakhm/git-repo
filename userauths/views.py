@@ -22,7 +22,7 @@ def generate_otp(length=6):
 def send_verification_email(email, otp):
     subject = 'Email Verification'
     message = f'Dear user,\n Your One-Time Password (OTP) for account verification is: {otp}\nPlease use this OTP for account verification process. Do not share this OTP with anyone for security reasons.'
-    from_email = 'advertise.website0994@gmail.com'  # Update with your email address
+    from_email = 'majid.it07@gmail.com'  # Update with your email address
     to_email = email
     try:
         send_mail(subject, message, from_email, [to_email])
@@ -100,14 +100,20 @@ def login_view(request):
     if request.method == "POST":
         email = request.POST.get("email") # peanuts@gmail.com
         password = request.POST.get("password") # getmepeanuts
-
         try:
             user = User.objects.get(email=email)
-            user = authenticate(request, email=email, password=password)
+            user = authenticate(username=email, password=password)
 
             if user is not None:
                 login(request, user)
                 messages.success(request, "You are logged in.")
+                # Clear the session data after login
+                if 'wishlist_count' in request.session:
+                    if request.session['wishlist_count']:
+                        del request.session['wishlist_count']
+                if 'cart_data_obj' in request.session:
+                    if request.session['cart_data_obj']:
+                        del request.session['cart_data_obj']
                 return redirect("core:index")
             else:
                 messages.warning(request, "User Does Not Exist, create an account.")

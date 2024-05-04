@@ -25,6 +25,18 @@ from django.core.exceptions import ObjectDoesNotExist
 def index(request):
     products = Product.objects.filter(product_status="published", featured=True).order_by("-id")
 
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for product in products:  # Use a different variable name here
+        product.in_cart = str(product.id) in cart_data_obj
+
     # Fetch the top selling products based on the sum of quantities sold
     top_selling_products = Product.objects.annotate(total_qty_sold=Sum('cartorderproducts__qty')).order_by(
         '-total_qty_sold')[:3]
@@ -69,7 +81,8 @@ def index(request):
         'top_selling_products': top_selling_products,
         'recently_added_products': recently_added_products,
         'top_rated_products': top_rated_products,
-        'trending_products': trending_products
+        'trending_products': trending_products,
+        'wishlist_items': wishlist_items
     }
 
     return render(request, 'core/index.html', context)
@@ -79,9 +92,22 @@ def product_list_view(request):
     products = Product.objects.filter(product_status="published").order_by("-id")
     tags = Tag.objects.all().order_by("-id")[:6]
 
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for product in products:  # Use a different variable name here
+        product.in_cart = str(product.id) in cart_data_obj
+
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
     context = {
-        "products":products,
-        "tags":tags,
+        'products': products,
+        'tags': tags,
+        'wishlist_items': wishlist_items
     }
 
     return render(request, 'core/product-list.html', context)
@@ -97,13 +123,25 @@ def category_list_view(request):
 
 
 def category_product_list__view(request, cid):
-
     category = Category.objects.get(cid=cid) # food, Cosmetics
     products = Product.objects.filter(product_status="published", category=category)
 
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for product in products:  # Use a different variable name here
+        product.in_cart = str(product.id) in cart_data_obj
+
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
     context = {
-        "category":category,
-        "products":products,
+        'category': category,
+        'products': products,
+        'wishlist_items': wishlist_items
     }
     return render(request, "core/category-product-list.html", context)
 
@@ -120,9 +158,22 @@ def vendor_detail_view(request, vid):
     vendor = Vendor.objects.get(vid=vid)
     products = Product.objects.filter(vendor=vendor, product_status="published").order_by("-id")
 
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for product in products:  # Use a different variable name here
+        product.in_cart = str(product.id) in cart_data_obj
+
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
     context = {
-        "vendor": vendor,
-        "products": products,
+        'vendor': vendor,
+        'products': products,
+        'wishlist_items': wishlist_items
     }
     return render(request, "core/vendor-detail.html", context)
 
@@ -130,6 +181,11 @@ def vendor_detail_view(request, vid):
 def product_detail_view(request, pid):
     product = Product.objects.get(pid=pid)
     products = Product.objects.filter(category=product.category).exclude(pid=pid)
+
+    # Check if the product is in the wishlist
+    is_in_wishlist = False
+    if request.user.is_authenticated:
+        is_in_wishlist = wishlist_model.objects.filter(product=product, user=request.user).exists()
 
     # Getting all reviews related to a product
     reviews = ProductReview.objects.filter(product=product).order_by("-date")
@@ -158,6 +214,24 @@ def product_detail_view(request, pid):
 
     p_image = product.p_images.all()
 
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    product.in_cart = str(product.id) in cart_data_obj
+
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for prod in products:  # Use a different variable name here
+        prod.in_cart = str(prod.id) in cart_data_obj
+
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
     context = {
         "p": product,
         "address": address,
@@ -167,13 +241,14 @@ def product_detail_view(request, pid):
         "average_rating": average_rating,
         "reviews": reviews,
         "products": products,
+        "wishlist_items": wishlist_items,
+        "is_in_wishlist": is_in_wishlist
     }
 
     return render(request, "core/product-detail.html", context)
 
 
 def tag_list(request, tag_slug=None):
-
     products = Product.objects.filter(product_status="published").order_by("-id")
 
     tag = None 
@@ -228,9 +303,22 @@ def search_view(request):
         Q(tags__name__icontains=query)  # Search in tags
     ).distinct().order_by("-date")
 
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for product in products:  # Use a different variable name here
+        product.in_cart = str(product.id) in cart_data_obj
+
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
     context = {
         "products": products,
         "query": query,
+        "wishlist_items": wishlist_items
     }
     return render(request, "core/search.html", context)
 
@@ -267,36 +355,23 @@ def filter_product(request):
     if len(vendors) > 0:
         products = products.filter(vendor__id__in=vendors).distinct() 
     else:
-        products = Product.objects.filter(product_status="published").order_by("-id").distinct()    
+        products = Product.objects.filter(product_status="published").order_by("-id").distinct()
 
-    data = render_to_string("core/async/product-list.html", {"products": products})
+    # Fetch cart data from session or create an empty dictionary if it doesn't exist
+    cart_data_obj = request.session.get('cart_data_obj', {})
+
+    # Iterate through products and check if each product is in the cart
+    for product in products:  # Use a different variable name here
+        product.in_cart = str(product.id) in cart_data_obj
+
+    # Fetch the wishlist items of the currently logged-in user if authenticated
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = wishlist_model.objects.filter(user=request.user).values_list('product_id', flat=True)
+
+    data = render_to_string("core/async/product-list.html", {"products": products, 'wishlist_items': wishlist_items})
     return JsonResponse({"data": data})
 
-
-# def add_to_cart(request):
-#     cart_product = {}
-#     cart_product[str(request.GET['id'])] = {
-#         'title': request.GET['title'],
-#         'qty': request.GET['qty'],
-#         'price': request.GET['price'],
-#         'image': request.GET['image'],
-#         'pid': request.GET['pid'],
-#     }
-#
-#     if 'cart_data_obj' in request.session:
-#         if str(request.GET['id']) in request.session['cart_data_obj']:
-#             cart_data = request.session['cart_data_obj']
-#             cart_data[str(request.GET['id'])]['qty'] = int(cart_product[str(request.GET['id'])]['qty'])
-#             cart_data.update(cart_data)
-#             request.session['cart_data_obj'] = cart_data
-#         else:
-#             cart_data = request.session['cart_data_obj']
-#             cart_data.update(cart_product)
-#             request.session['cart_data_obj'] = cart_data
-#
-#     else:
-#         request.session['cart_data_obj'] = cart_product
-#     return JsonResponse({"data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj'])})
 
 def add_to_cart(request):
     product_id = str(request.GET.get('id'))
@@ -313,13 +388,16 @@ def add_to_cart(request):
         if product_id in cart_data:
             # If product already exists in cart, remove it
             del cart_data[product_id]
+            success = False  # Product removed from cart
         else:
             cart_data[product_id] = cart_product
+            success = True  # Product added to cart
         request.session['cart_data_obj'] = cart_data
     else:
         request.session['cart_data_obj'] = {product_id: cart_product}
+        success = True  # Product added to cart
 
-    return JsonResponse({"data": request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj'])})
+    return JsonResponse({"data": request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'success': success })
 
 
 def cart_view(request):
@@ -354,10 +432,6 @@ def update_cart(request):
     product_id = str(request.GET['id'])
     product_qty = request.GET['qty']
 
-    print("Idddddddddddddddddddddddddddd :", product_id)
-    print("product_qtyyyyyyyyyyyyyy  :", product_qty)
-
-
     if 'cart_data_obj' in request.session:
         if product_id in request.session['cart_data_obj']:
             cart_data = request.session['cart_data_obj']
@@ -373,81 +447,6 @@ def update_cart(request):
     return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
 
 
-# @login_required
-# def checkout_view(request):
-#     cart_total_amount = 0
-#     total_amount = 0
-#
-#     # Checking if cart_data_obj session exists
-#     if 'cart_data_obj' in request.session:
-#         # Getting total amount for Paypal Amount
-#         for p_id, item in request.session['cart_data_obj'].items():
-#             total_amount += int(item['qty']) * float(item['price'])
-#
-#         if request.user.is_authenticated:
-#             # User is authenticated, use the current user for the order
-#             user = request.user
-#         else:
-#             # User is not authenticated, use a placeholder user object
-#             user = None
-#
-#         # Save the CartOrder instance with cheque_picture and comments
-#         order = CartOrder.objects.create(
-#             user=user,
-#             price=total_amount,
-#         )
-#
-#         # Getting total amount for The Cart
-#         for p_id, item in request.session['cart_data_obj'].items():
-#             cart_total_amount += int(item['qty']) * float(item['price'])
-#
-#             # Fetch the Product instance corresponding to the product ID (pid)
-#             product = get_object_or_404(Product, pid=item['pid'])
-#
-#             cart_order_products = CartOrderProducts.objects.create(
-#                 order=order,
-#                 invoice_no="INVOICE_NO-" + str(order.id),  # INVOICE_NO-5,
-#                 item=item['title'],
-#                 image=item['image'],
-#                 qty=item['qty'],
-#                 price=item['price'],
-#                 product=product,
-#                 total=float(item['qty']) * float(item['price'])
-#             )
-#
-#         host = request.get_host()
-#         paypal_dict = {
-#             'business': settings.PAYPAL_RECEIVER_EMAIL,
-#             'amount': cart_total_amount,
-#             'item_name': "Order-Item-No-" + str(order.id),
-#             'invoice': "INVOICE_NO-" + str(order.id),
-#             'currency_code': "USD",
-#             'notify_url': 'http://{}{}'.format(host, reverse("core:paypal-ipn")),
-#             'return_url': 'http://{}{}'.format(host, reverse("core:payment-completed")),
-#             'cancel_url': 'http://{}{}'.format(host, reverse("core:payment-failed")),
-#         }
-#
-#         paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
-#
-#         # cart_total_amount = 0
-#         # if 'cart_data_obj' in request.session:
-#         #     for p_id, item in request.session['cart_data_obj'].items():
-#         #         cart_total_amount += int(item['qty']) * float(item['price'])
-#
-#         try:
-#             active_address = Address.objects.get(user=request.user, status=True)
-#         except:
-#             if request.user.is_authenticated:
-#                 messages.warning(request, "There are multiple addresses, only one should be activated.")
-#                 active_address = None
-#             else:
-#                 messages.warning(request, "")
-#                 active_address = None
-#
-#         return render(request, "core/checkout.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']), 'cart_total_amount':cart_total_amount, 'paypal_payment_button':paypal_payment_button, "active_address":active_address})
-
-
-# updated Checkout
 def checkout_view(request):
     cart_total_amount = 0
 
@@ -664,7 +663,6 @@ def customer_dashboard(request):
             print("Error")
     
     user_profile = Profile.objects.get(user=request.user)
-    # print("user profile is: #########################",  user_profile)
 
     # Check change password success or failure
     if 'change_password_tab_active' in request.session:
@@ -714,6 +712,7 @@ def wishlist_view(request):
     return render(request, "core/wishlist.html", context)
 
 
+@login_required
 def add_to_wishlist(request):
     product_id = request.GET.get('id')
     product = Product.objects.get(id=product_id)
@@ -729,6 +728,8 @@ def add_to_wishlist(request):
         context = {
             "bool": False  # Indicate that the product is removed from the wishlist
         }
+        # Decrease the wishlist count in session by one
+        request.session['wishlist_count'] = request.session.get('wishlist_count', 0) - 1
     else:
         # If the product is not in the wishlist, add it
         new_wishlist = wishlist_model.objects.create(
@@ -738,38 +739,31 @@ def add_to_wishlist(request):
         context = {
             "bool": True  # Indicate that the product is added to the wishlist
         }
+        # Increase the wishlist count in session by one
+        request.session['wishlist_count'] = request.session.get('wishlist_count', 0) + 1
 
+    context['wishlist_count'] = request.session.get('wishlist_count')
     return JsonResponse(context)
 
-
-
-# def remove_wishlist(request):
-#     pid = request.GET['id']
-#     wishlist = wishlist_model.objects.filter(user=request.user).values()
-
-#     product = wishlist_model.objects.get(id=pid)
-#     h = product.delete()
-
-#     context = {
-#         "bool": True,
-#         "wishlist":wishlist
-#     }
-#     t = render_to_string("core/async/wishlist-list.html", context)
-#     return JsonResponse({"data": t, "w":wishlist})
 
 def remove_wishlist(request):
     pid = request.GET['id']
     wishlist = wishlist_model.objects.filter(user=request.user)
     wishlist_d = wishlist_model.objects.get(id=pid)
     delete_product = wishlist_d.delete()
+
+    # Decrease the wishlist count in session by one
+    wishlist_count = request.session.get('wishlist_count')
+    request.session['wishlist_count'] = wishlist_count - 1
     
     context = {
         "bool":True,
-        "w":wishlist
+        "w":wishlist,
     }
+
     wishlist_json = serializers.serialize('json', wishlist)
     t = render_to_string('core/async/wishlist-list.html', context)
-    return JsonResponse({'data':t,'w':wishlist_json})
+    return JsonResponse({'data':t,'w':wishlist_json, 'wishlist_count': wishlist_count - 1})
 
 
 def contact(request):

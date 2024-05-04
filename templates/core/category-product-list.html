@@ -77,9 +77,15 @@
                                         </a>
                                     </div>
                                     <div class="product-action-1">
-                                        <a aria-label="Add To Wishlist"  class="action-btn add-to-wishlist" data-product-item="{{p.id}}"><i class="fi-rs-heart"></i></a>
+                                        <a aria-label="Add To Wishlist" class="action-btn add-to-wishlist" data-product-item="{{p.id}}">
+                                            {% if p.id in wishlist_items %}
+                                            <i class="fas fa-heart text-danger"></i>
+                                            {% else %}
+                                            <i class="fi-rs-heart"></i>
+                                            {% endif %}
+                                        </a>
                                         <!-- <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
-                                        <a href="{% url 'core:product-detail' p.pid %}" class="action-btn"><i class="fi-rs-eye"></i></a>
+                                        <a aria-label="View Details" href="{% url 'core:product-detail' p.pid %}" class="action-btn"><i class="fi-rs-eye"></i></a>
                                     </div>
                                     {% if p.old_price %}
                                     <div class="product-badges product-badges-position product-badges-mrg">
@@ -113,10 +119,21 @@
                                             <input type="hidden" class="product-id-{{ p.id }}" value="{{ p.id }}">
                                             <input type="hidden" class="product-title-{{ p.id }}" value="{{ p.title }}">
                                             <div class="d-flex">
-                                                <button class="add add-to-cart-btn" data-index="{{ p.id }}" style="border: none;" id="add-to-cart-btn"><i class="fi-rs-shopping-cart mr-5"></i>Add</button>
-                                                <button style="border: none; background: none;" class="add-to-wishlist" data-product-item="{{p.id}}"><i class="fi-rs-heart" style="fill: aqua;"></i></button>
+                                                <button class="add add-to-cart-btn" data-index="{{ p.id }}" style="border: none;" id="add-to-cart-btn">
+                                                {% if p.in_cart %}
+                                                <i class='fas fa-check-circle'></i>
+                                                    {% else %}
+                                                        <i class="fi-rs-shopping-cart mr-5"></i>Add
+                                                    {% endif %}
+                                                </button>
+                                                <button style="border: none; background: none;" class="add-to-wishlist" data-product-item="{{p.id}}">
+                                                    {% if p.id in wishlist_items %}
+                                                    <i class="fas fa-heart text-danger"></i>
+                                                    {% else %}
+                                                    <i class="fi-rs-heart"></i>
+                                                    {% endif %}
+                                                </button>
                                             </div>
-                                            <!-- <button class="add add-to-cart-btn" data-index="{{ p.id }}" style="border: none;" id="add-to-cart-btn"><i class="fi-rs-shopping-cart mr-5"></i>Add</button> -->
                                         </div>
                                     </div>
                                 </div>
