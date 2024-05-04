@@ -115,6 +115,7 @@
                                 <th class="align-middle" scope="col">Total</th>
                                 <th class="align-middle" scope="col">Payment Status</th>
                                 <th class="align-middle" scope="col">Payment Method</th>
+                                <th class="align-middle" scope="col">Cheque Image</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -138,6 +139,15 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ l.payment_method }}</td>
+                                <td>
+                                    {% if l.cheque_picture %}
+                                        <a href="{{ l.cheque_picture.url }}" download>
+                                            <img src="{{ l.cheque_picture.url }}" alt="Cheque Picture" style="max-width: 80px; max-height: 80px;">
+                                        </a>
+                                    {% else %}
+                                        No image available
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
