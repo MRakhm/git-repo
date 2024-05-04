@@ -167,7 +167,7 @@ def generate_otp(length=6):
 
 def send_verification_email(email, otp):
     subject = 'Email Verification'
-    message = f'Dear user,\n Your One-Time Password (OTP) for account verification is: {otp}\nDo not share this OTP with anyone for security reasons.'
+    message = f'Dear user,\n\nYour One-Time Password (OTP) for account verification is: {otp}\n\nDo not share this OTP with anyone for security reasons.'
     from_email = 'advertise.website0994@gmail.com'  # Update with your email address
     to_email = email
     try:
