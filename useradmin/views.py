@@ -5,7 +5,7 @@ import random
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from taggit.models import Tag
 
@@ -198,10 +198,16 @@ def send_otp_view(request):
 
 @login_required
 def dashboard_statistics_superuser(request):
+    if not request.user.is_superuser:
+        messages.warning(request, 'You do not have permission to access this page!')
+        return redirect('core:index')
     revenue = CartOrder.objects.aggregate(price=Sum("price"))
     total_orders_count = CartOrder.objects.all()
     all_products = Product.objects.all()
     all_categories = Category.objects.all()
+
+    # Fetch latest orders in descending order based on the order date
+    latest_orders = CartOrder.objects.order_by('-order_date')
 
     this_month = datetime.datetime.now().month
     monthly_revenue = CartOrder.objects.filter(order_date__month=this_month).aggregate(price=Sum("price"))
@@ -211,6 +217,7 @@ def dashboard_statistics_superuser(request):
         "revenue": revenue,
         "all_products": all_products,
         "all_categories": all_categories,
+        "latest_orders": latest_orders,
         "total_orders_count": total_orders_count,
     }
     return render(request, "useradmin/dashboard_statistics.html", context)
@@ -218,6 +225,9 @@ def dashboard_statistics_superuser(request):
 
 @login_required
 def add_multiple_products(request):
+    if not request.user.is_superuser:
+        messages.warning(request, 'You do not have permission to access this page!')
+        return redirect('core:index')
     # Check if the form has been submitted previously
     form_submitted = request.session.get('form_submitted', False)
     if request.method == 'POST':
